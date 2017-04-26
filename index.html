@@ -27,5 +27,30 @@
     <body>
         <!-- Run the game code -->
         <script type="text/javascript" src="src/three.min.js"></script>
+        <script type="text/javascript">
+            //preparing camera
+            var scene = new THREE.Scene();
+            var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+            
+            var renderer = new THREE.WebGLRenderer();
+            renderer.setSize( window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+            
+            var geom_kotak = new THREE.BoxGeometry (1,1,1);
+            var material = new THREE.MeshBasicMaterial({color:0x00ff00});
+            var kotak = new THREE.Mesh (geom_kotak, material);
+            scene.add(kotak);
+            
+            camera.position.z = 5;
+            
+            kotak.rotation.x += 0.1;
+            kotak.rotation.y += 0.1;
+            function render(){
+            
+                requestAnimationFrame (render);
+                renderer.render (scene, camera);
+            }
+            render();
+        </script>
     </body>
 </html>
