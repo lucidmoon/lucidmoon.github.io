@@ -31,11 +31,11 @@
             document.body.appendChild(renderer.domElement);
             
             var geom_kotak = new THREE.BoxGeometry (1,1,1);
-            var material = new THREE.MeshBasicMaterial({color:0x00ff00});
+            var material = new THREE.MeshNormalMaterial({overdraw:0.5});
             var kotak = new THREE.Mesh (geom_kotak, material);
             scene.add(kotak);
             
-            camera.position.z = 5;
+            camera.position.z = 3;
             
             
             var render = function (){
