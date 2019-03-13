@@ -76,11 +76,11 @@ function updateBola(){
 
 function controlPlayer1(){
     // =============== p1 ==================
-    if (game.input.keyboard.isDown(Phaser.Keyboard.DOWN)){
+    if (game.input.keyboard.isDown(Phaser.Keyboard.Z)){
         player1.y +=10;
         red.y +=10;
     }
-    else if (game.input.keyboard.isDown(Phaser.Keyboard.UP)){
+    else if (game.input.keyboard.isDown(Phaser.Keyboard.A)){
         player1.y -=10;
         red.y -=10;
     }
@@ -88,11 +88,11 @@ function controlPlayer1(){
 
 function controlPlayer2(){
     // =============== p2 ==================
-    if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
+    if (game.input.keyboard.isDown(Phaser.Keyboard.DOWN)){
         player2.y +=10;
         blue.y +=10;
     }
-    else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
+    else if (game.input.keyboard.isDown(Phaser.Keyboard.UP)){
         player2.y -=10;
         blue.y -=10;
     }
