@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super IPA Time! - Prototype</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #eef2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .app-container {
+      width: 380px;
+      height: 760px;
+      background-color: #ffffff;
+      border-radius: 40px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15), inset 0 0 0 10px #2c3e50;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .status-bar {
+      height: 30px;
+      background-color: #2c3e50;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .screen {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      padding: 20px;
+      overflow-y: auto;
+      background-color: #f8fafc;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    /* Screen 1: Start / Insert Name */
+    .nav-tabs {
+      display: flex;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #cbd5e1;
+      margin-bottom: 15px;
+    }
+
+    .nav-tab {
+      flex: 1;
+      padding: 8px 5px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      background-color: #f1f5f9;
+      color: #64748b;
+      cursor: pointer;
+    }
+
+    .nav-tab.active {
+      background-color: #2b3a4a;
+      color: #ffffff;
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, #3b82f6, #06b6d4);
+      border-radius: 20px;
+      padding: 20px;
+      text-align: center;
+      color: white;
+      box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .hero-title {
+      font-size: 26px;
+      font-weight: 900;
+      color: #fbbf24;
+      text-shadow: 2px 2px 0px #1e3a8a, -1px -1px 0 #1e3a8a, 1px -1px 0 #1e3a8a, -1px 1px 0 #1e3a8a;
+      margin-bottom: 5px;
+      letter-spacing: 1px;
+    }
+
+    .hero-icon {
+      font-size: 45px;
+      margin: 10px 0;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    .input-label {
+      font-size: 12px;
+      color: #475569;
+      font-weight: 600;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 12px;
+      font-size: 16px;
+    }
+
+    .custom-input {
+      width: 100%;
+      padding: 12px 12px 12px 38px;
+      border: 2px solid #cbd5e1;
+      border-radius: 12px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .custom-input:focus {
+      border-color: #3b82f6;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      background-color: #2b3a4a;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: transform 0.1s, background-color 0.2s;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .leaderboard-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 15px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+      margin-top: 15px;
+    }
+
+    .leaderboard-header {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 12px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .leaderboard-list {
+      list-style: none;
+    }
+
+    .leaderboard-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 13px;
+    }
+
+    .leaderboard-item:last-child {
+      border-bottom: none;
+    }
+
+    .rank-badge {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background-color: #cbd5e1;
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+
+    .rank-1 { background-color: #f59e0b; }
+    .rank-2 { background-color: #94a3b8; }
+    .rank-3 { background-color: #d97706; }
+
+    .player-info {
+      display: flex;
+      align-items: center;
+    }
+
+    .player-score {
+      font-weight: 700;
+      color: #334155;
+    }
+
+    /* Screen 2: Quiz Question */
+    .quiz-progress-bar {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      background: #ffffff;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .progress-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 10px;
+      color: #64748b;
+    }
+
+    .step-circle {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background-color: #e2e8f0;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .progress-step.completed .step-circle {
+      background-color: #10b981;
+      color: white;
+    }
+
+    .progress-step.active .step-circle {
+      background-color: #3b82f6;
+      color: white;
+    }
+
+    .media-card {
+      background: white;
+      border-radius: 16px;
+      padding: 15px;
+      text-align: center;
+      border: 1px solid #e2e8f0;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    }
+
+    .media-card img {
+      width: 100%;
+      max-height: 160px;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+
+    .media-title {
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+
+    .question-card {
+      background: white;
+      border-radius: 16px;
+      padding: 15px;
+      border: 1px solid #e2e8f0;
+      margin-bottom: 15px;
+    }
+
+    .question-text {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e293b;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .option-btn {
+      padding: 12px 15px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background-color: #f8fafc;
+      color: #334155;
+      font-weight: 600;
+      font-size: 13px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .option-btn:hover {
+      border-color: #3b82f6;
+      background-color: #eff6ff;
+    }
+
+    .option-btn.selected {
+      background-color: #10b981;
+      color: white;
+      border-color: #059669;
+    }
+
+    .option-btn.wrong {
+      background-color: #ef4444;
+      color: white;
+      border-color: #dc2626;
+    }
+
+    /* Screen 3: Score Result */
+    .congrats-card {
+      text-align: center;
+      padding: 20px 10px;
+    }
+
+    .congrats-title {
+      font-size: 22px;
+      font-weight: 900;
+      color: #f59e0b;
+      margin-bottom: 10px;
+    }
+
+    .trophy-icon {
+      font-size: 60px;
+      margin: 10px 0;
+      animation: bounce 1.5s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .home-indicator {
+      height: 4px;
+      width: 120px;
+      background-color: #cbd5e1;
+      border-radius: 2px;
+      margin: 10px auto 15px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span>09:41</span>
+    <span>Super IPA Time!</span>
+    <span>100%</span>
+  </div>
+
+  <!-- SCREEN 1: Insert Name / Start -->
+  <div id="screen1" class="screen active">
+    <div class="nav-tabs">
+      <div class="nav-tab active">Insert Name</div>
+      <div class="nav-tab" onclick="goToScreen('screen2')">Answer Question</div>
+      <div class="nav-tab" onclick="goToScreen('screen3')">Score</div>
+    </div>
+
+    <div class="hero-card">
+      <div class="hero-icon">🔬⚡</div>
+      <h1 class="hero-title">Super IPA Time!</h1>
+      <p style="font-size: 12px; opacity: 0.9;">Ayo Uji Pengetahuan Sainsmu!</p>
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">Masukkan Nama Kamu</label>
+      <div class="input-wrapper">
+        <span class="input-icon">👤</span>
+        <input type="text" id="playerNameInput" class="custom-input" placeholder="Nama siswa..." value="Muhammad Rizal">
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="startQuiz()">ACCEPT & MULAI</button>
+
+    <div class="leaderboard-card">
+      <div class="leaderboard-header">
+        🏆 Super Top Score
+      </div>
+      <ul class="leaderboard-list">
+        <li class="leaderboard-item">
+          <div class="player-info"><span class="rank-badge rank-1">1</span> <strong>Muhammad Rizal</strong></div>
+          <span class="player-score">999,999</span>
+        </li>
+        <li class="leaderboard-item">
+          <div class="player-info"><span class="rank-badge rank-2">2</span> Budi Santoso</div>
+          <span class="player-score">950,000</span>
+        </li>
+        <li class="leaderboard-item">
+          <div class="player-info"><span class="rank-badge rank-3">3</span> Siti Aminah</div>
+          <span class="player-score">900,000</span>
+        </li>
+        <li class="leaderboard-item">
+          <div class="player-info"><span class="rank-badge">4</span> Andi Pratama</div>
+          <span class="player-score">850,000</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: Question View -->
+  <div id="screen2" class="screen">
+    <div class="quiz-progress-bar">
+      <div class="progress-step active">
+        <div class="step-circle">1</div>
+        <span>Soal 1</span>
+      </div>
+      <div class="progress-step">
+        <div class="step-circle">2</div>
+        <span>Soal 2</span>
+      </div>
+      <div class="progress-step">
+        <div class="step-circle">3</div>
+        <span>Soal 3</span>
+      </div>
+      <div class="progress-step">
+        <div class="step-circle">4</div>
+        <span>Soal 4</span>
+      </div>
+    </div>
+
+    <div class="media-card">
+      <div class="media-title">Siklus Air</div>
+      <svg width="100%" height="130" viewBox="0 0 300 150" style="background:#e0f2fe; border-radius:10px;">
+        <path d="M 0 110 Q 75 90 150 110 T 300 110 L 300 150 L 0 150 Z" fill="#38bdf8"/>
+        <path d="M 180 110 Q 220 50 260 110 Z" fill="#64748b"/>
+        <path d="M 20 40 Q 35 25 50 40 Q 65 25 80 40 Q 65 55 50 55 Q 35 55 20 40 Z" fill="#ffffff"/>
+        <path d="M 160 30 Q 175 15 190 30 Q 205 15 220 30 Q 205 45 190 45 Q 175 45 160 30 Z" fill="#ffffff"/>
+        <!-- Rain drops -->
+        <line x1="40" y1="60" x2="35" y2="75" stroke="#0284c7" stroke-width="2" stroke-dasharray="3,3"/>
+        <line x1="60" y1="60" x2="55" y2="75" stroke="#0284c7" stroke-width="2" stroke-dasharray="3,3"/>
+        <!-- Evaporation arrows -->
+        <path d="M 100 95 L 100 70 M 96 75 L 100 70 L 104 75" stroke="#f59e0b" stroke-width="2.5" fill="none"/>
+        <path d="M 130 95 L 130 70 M 126 75 L 130 70 L 134 75" stroke="#f59e0b" stroke-width="2.5" fill="none"/>
+      </svg>
+    </div>
+
+    <div class="question-card">
+      <div class="question-text">Proses perubahan air laut menjadi uap air yang naik ke atmosfer disebut?</div>
+      <div class="options-grid">
+        <button class="option-btn" onclick="selectOption(this, false)">Kondensasi</button>
+        <button class="option-btn" onclick="selectOption(this, true)">Evaporasi</button>
+        <button class="option-btn" onclick="selectOption(this, false)">Presipitasi</button>
+        <button class="option-btn" onclick="selectOption(this, false)">Infiltrasi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: Score Result -->
+  <div id="screen3" class="screen">
+    <div class="congrats-card">
+      <div class="trophy-icon">🏆</div>
+      <h2 class="congrats-title">You get Perfect Score! Congrats!</h2>
+      <p style="font-size: 13px; color: #64748b;">Selamat <span id="displayPlayerName" style="font-weight:bold; color:#1e293b;">Muhammad Rizal</span>!</p>
+    </div>
+
+    <div class="leaderboard-card">
+      <div class="leaderboard-header">
+        ⭐ Super Top Score ⭐
+      </div>
+      <ul class="leaderboard-list">
+        <li class="leaderboard-item" style="background:#fef3c7; border-radius:8px;">
+          <div class="player-info"><span class="rank-badge rank-1">1</span> <strong id="topPlayerName">Muhammad Rizal</strong></div>
+          <span class="player-score" style="color:#d97706;">999,999</span>
+        </li>
+        <li class="leaderboard-item">
+          <div class="player-info"><span class="rank-badge rank-2">2</span> Budi Santoso</div>
+          <span class="player-score">950,000</span>
+        </li>
+        <li class="leaderboard-item">
+          <div class="player-info"><span class="rank-badge rank-3">3</span> Siti Aminah</div>
+          <span class="player-score">900,000</span>
+        </li>
+        <li class="leaderboard-item">
+          <div class="player-info"><span class="rank-badge">4</span> Andi Pratama</div>
+          <span class="player-score">850,000</span>
+        </li>
+        <li class="leaderboard-item">
+          <div class="player-info"><span class="rank-badge">5</span> Rizky Ramadhan</div>
+          <span class="player-score">820,000</span>
+        </li>
+        <li class="leaderboard-item">
+          <div class="player-info"><span class="rank-badge">6</span> Dewa Putu</div>
+          <span class="player-score">800,000</span>
+        </li>
+      </ul>
+    </div>
+
+    <button class="btn-primary" style="margin-top: 20px;" onclick="goToScreen('screen1')">Return to Main Menu</button>
+  </div>
+
+  <div class="home-indicator"></div>
+</div>
+
+<script>
+  function goToScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+  }
+
+  function startQuiz() {
+    const name = document.getElementById('playerNameInput').value || 'Pemain';
+    document.getElementById('displayPlayerName').innerText = name;
+    document.getElementById('topPlayerName').innerText = name;
+    goToScreen('screen2');
+  }
+
+  function selectOption(btn, isCorrect) {
+    document.querySelectorAll('.option-btn').forEach(b => {
+      b.classList.remove('selected', 'wrong');
+    });
+
+    if(isCorrect) {
+      btn.classList.add('selected');
+      setTimeout(() => {
+        goToScreen('screen3');
+      }, 700);
+    } else {
+      btn.classList.add('wrong');
+    }
+  }
+</script>
+
+</body>
+</html>
