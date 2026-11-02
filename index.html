@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super IPA Time!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Reset & Global Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Press Start 2P', monospace;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        /* Fixed 640x480 Container */
+        #game-container {
+            width: 640px;
+            height: 480px;
+            background-color: #000;
+            position: relative;
+            border: 4px solid #333;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2), inset 0 0 20px rgba(0,0,0,0.8);
+            overflow: hidden;
+        }
+
+        /* CRT Scanline Effect Overlay */
+        #game-container::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 0),
+                rgba(255, 255, 255, 0) 50%,
+                rgba(0, 0, 0, 0.2) 50%,
+                rgba(0, 0, 0, 0.2)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* Screen Base Class */
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            z-index: 10;
+        }
+
+        .active {
+            display: flex;
+        }
+
+        /* 1. Opening Screen */
+        #screen-opening {
+            background: radial-gradient(circle, #1a1a3a 0%, #000000 100%);
+            animation: bgScroll 10s linear infinite;
+        }
+        @keyframes bgScroll {
+            0% { background-position: 0 0; }
+            100% { background-position: 640px 480px; }
+        }
+        .logo-opening {
+            font-size: 48px;
+            color: #ffde00;
+            text-shadow: 4px 4px 0px #d60000;
+            margin-bottom: 60px;
+            line-height: 1.5;
+            animation: bounce 2s infinite ease-in-out;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        .blink-text {
+            font-size: 16px;
+            color: #00ffcc;
+            animation: blinker 1s linear infinite;
+            cursor: pointer;
+        }
+        @keyframes blinker {
+            50% { opacity: 0; }
+        }
+
+        /* 2. Main Menu Screen */
+        #screen-menu {
+            background-color: #0d2b45;
+        }
+        .menu-title {
+            font-size: 32px;
+            color: #ffde00;
+            text-shadow: 3px 3px 0px #d60000;
+            margin-bottom: 20px;
+        }
+        .chibi-container {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+            animation: float 3s infinite ease-in-out;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .input-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .input-group label {
+            font-size: 14px;
+            color: #fff;
+        }
+        .arcade-input {
+            font-family: 'Press Start 2P', monospace;
+            background: #000;
+            color: #00ffcc;
+            border: 2px solid #00ffcc;
+            padding: 10px;
+            font-size: 16px;
+            text-align: center;
+            width: 250px;
+            outline: none;
+            text-transform: uppercase;
+        }
+        .arcade-btn {
+            font-family: 'Press Start 2P', monospace;
+            background: #d60000;
+            color: #fff;
+            border: 4px solid #fff;
+            padding: 15px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 4px 4px 0px #000;
+            transition: transform 0.1s;
+        }
+        .arcade-btn:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px #000;
+        }
+        .arcade-btn:hover {
+            background: #ffde00;
+            color: #d60000;
+            border-color: #d60000;
+        }
+
+        /* 3. Quiz Session Screen */
+        #screen-quiz {
+            background-color: #1a4a1a;
+            justify-content: flex-start;
+            padding-top: 40px;
+        }
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0 30px;
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 30px;
+        }
+        .question-box {
+            background: #000;
+            border: 4px solid #fff;
+            padding: 20px;
+            width: 90%;
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 40px;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .answers-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            width: 90%;
+        }
+        .answer-btn {
+            font-family: 'Press Start 2P', monospace;
+            background: #004488;
+            color: #fff;
+            border: 3px solid #00ccff;
+            padding: 20px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            line-height: 1.4;
+        }
+        .answer-btn:hover {
+            background: #00ccff;
+            color: #000;
+        }
+        
+        /* 4. Game Over Screen */
+        #screen-gameover {
+            background-color: #4a0000;
+        }
+        .game-over-text {
+            font-size: 56px;
+            color: #d60000;
+            text-shadow: 4px 4px 0px #fff;
+            margin-bottom: 40px;
+            line-height: 1.2;
+        }
+        .score-text {
+            font-size: 24px;
+            color: #ffde00;
+        }
+
+        /* 5. High Score Screen */
+        #screen-highscore {
+            background-color: #222;
+        }
+        .hs-title {
+            font-size: 28px;
+            color: #00ffcc;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 0px #000;
+        }
+        .hs-table {
+            width: 80%;
+            border-collapse: collapse;
+        }
+        .hs-table th, .hs-table td {
+            padding: 8px;
+            font-size: 14px;
+            text-align: left;
+        }
+        .hs-table th {
+            color: #ffde00;
+            border-bottom: 2px dashed #666;
+            margin-bottom: 10px;
+        }
+        .hs-table td:last-child, .hs-table th:last-child {
+            text-align: right;
+        }
+        .hs-table tr:nth-child(1) td { color: #ffd700; } /* 1st Gold */
+        .hs-table tr:nth-child(2) td { color: #c0c0c0; } /* 2nd Silver */
+        .hs-table tr:nth-child(3) td { color: #cd7f32; } /* 3rd Bronze */
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        
+        <!-- STATE 1: Opening Animation -->
+        <div id="screen-opening" class="screen active">
+            <h1 class="logo-opening">SUPER<br>IPA<br>TIME!</h1>
+            <p class="blink-text">PRESS ANY BUTTON</p>
+        </div>
+
+        <!-- STATE 2: Main Menu -->
+        <div id="screen-menu" class="screen">
+            <h2 class="menu-title">SUPER IPA TIME!</h2>
+            <!-- Chibi Illustrator SVG (Scientist Kid) -->
+            <div class="chibi-container">
+                <svg viewBox="0 0 100 100" width="100%" height="100%">
+                    <!-- Body (Lab Coat) -->
+                    <rect x="25" y="60" width="50" height="40" fill="#ffffff" rx="10"/>
+                    <line x1="50" y1="60" x2="50" y2="100" stroke="#cccccc" stroke-width="2"/>
+                    <!-- Head -->
+                    <circle cx="50" cy="40" r="25" fill="#fcdbb6"/>
+                    <!-- Hair -->
+                    <path d="M 20 40 Q 50 -10 80 40 Q 70 20 50 15 Q 30 20 20 40" fill="#331a00"/>
+                    <path d="M 22 35 Q 20 50 25 60 Q 15 50 22 35" fill="#331a00"/>
+                    <path d="M 78 35 Q 80 50 75 60 Q 85 50 78 35" fill="#331a00"/>
+                    <!-- Goggles / Glasses -->
+                    <rect x="30" y="32" width="16" height="12" rx="3" fill="none" stroke="#004488" stroke-width="3"/>
+                    <rect x="54" y="32" width="16" height="12" rx="3" fill="none" stroke="#004488" stroke-width="3"/>
+                    <line x1="46" y1="38" x2="54" y2="38" stroke="#004488" stroke-width="3"/>
+                    <!-- Eyes & Smile -->
+                    <circle cx="38" cy="38" r="2" fill="#000"/>
+                    <circle cx="62" cy="38" r="2" fill="#000"/>
+                    <path d="M 40 48 Q 50 55 60 48" fill="none" stroke="#000" stroke-width="2"/>
+                    <!-- Left Arm (Normal) -->
+                    <rect x="15" y="65" width="15" height="10" rx="3" fill="#ffffff" transform="rotate(-30 15 65)"/>
+                    <!-- Right Arm (Thumbs up) -->
+                    <rect x="70" y="65" width="10" height="20" rx="3" fill="#ffffff" transform="rotate(-30 70 65)"/>
+                    <circle cx="85" cy="55" r="5" fill="#fcdbb6"/> <!-- Hand -->
+                    <rect x="83" y="48" width="4" height="8" rx="2" fill="#fcdbb6"/> <!-- Thumb -->
+                </svg>
+            </div>
+            
+            <div class="input-group">
+                <label for="player-name">ENTER NAME:</label>
+                <input type="text" id="player-name" class="arcade-input" maxlength="10" placeholder="PLAYER1" autocomplete="off">
+            </div>
+            <button class="arcade-btn" onclick="startSession()">MULAI</button>
+        </div>
+
+        <!-- STATE 3: Quiz Session -->
+        <div id="screen-quiz" class="screen">
+            <div class="hud">
+                <span id="hud-question">Q: 1/10</span>
+                <span id="hud-score">SCORE: 0</span>
+            </div>
+            <div class="question-box" id="question-text">
+                Pertanyaan akan muncul di sini?
+            </div>
+            <div class="answers-grid" id="answers-container">
+                <button class="answer-btn" onclick="selectAnswer(0)">Jawaban A</button>
+                <button class="answer-btn" onclick="selectAnswer(1)">Jawaban B</button>
+                <button class="answer-btn" onclick="selectAnswer(2)">Jawaban C</button>
+                <button class="answer-btn" onclick="selectAnswer(3)">Jawaban D</button>
+            </div>
+        </div>
+
+        <!-- STATE 4: Game Over -->
+        <div id="screen-gameover" class="screen">
+            <h1 class="game-over-text">GAME<br>OVER</h1>
+            <p class="score-text">YOUR SCORE IS <br><br><span id="final-score">0</span></p>
+        </div>
+
+        <!-- STATE 5: High Score -->
+        <div id="screen-highscore" class="screen">
+            <h2 class="hs-title">TOP 10 RANK</h2>
+            <table class="hs-table" id="highscore-table">
+                <thead>
+                    <tr>
+                        <th>RANK</th>
+                        <th>NAME</th>
+                        <th>SCORE</th>
+                    </tr>
+                </thead>
+                <tbody id="highscore-body">
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        // --- GAME DATA: IPA Kelas 5 SD (Rantai Makanan & Ekosistem Sawah) ---
+        const quizData = [
+            {
+                question: "Produsen utama penghasil energi dalam ekosistem sawah adalah...",
+                answers: ["Tikus", "Tanaman Padi", "Ular", "Katak"],
+                correct: 1
+            },
+            {
+                question: "Hewan yang berperan sebagai konsumen tingkat I (pemakan padi) adalah...",
+                answers: ["Belalang", "Burung Elang", "Katak", "Ular Sawah"],
+                correct: 0
+            },
+            {
+                question: "Dalam rantai makanan di sawah, katak berfungsi memakan...",
+                answers: ["Padi", "Ular", "Belalang", "Elang"],
+                correct: 2
+            },
+            {
+                question: "Apa yang akan terjadi pada ekosistem jika populasi katak menurun drastis?",
+                answers: ["Padi tumbuh subur", "Belalang bertambah banyak", "Ular bertambah banyak", "Elang bertambah banyak"],
+                correct: 1
+            },
+            {
+                question: "Peran burung elang dalam ekosistem sawah adalah sebagai...",
+                answers: ["Produsen", "Konsumen Puncak (III)", "Dekomposer", "Konsumen I"],
+                correct: 1
+            },
+            {
+                question: "Organisme yang bertugas menguraikan bangkai elang yang mati adalah...",
+                answers: ["Jamur & Bakteri", "Cacing Tanah", "Rumput", "Tanaman Padi"],
+                correct: 0
+            },
+            {
+                question: "Susunan rantai makanan yang benar di bawah ini adalah...",
+                answers: ["Padi-Katak-Belalang-Ular", "Padi-Belalang-Katak-Ular", "Padi-Ular-Katak-Belalang", "Katak-Padi-Ular-Belalang"],
+                correct: 1
+            },
+            {
+                question: "Hubungan antara padi dan gulma (rumput liar) yang tumbuh di sawah adalah...",
+                answers: ["Simbiosis Mutualisme", "Kompetisi", "Parasitisme", "Predasi"],
+                correct: 1
+            },
+            {
+                question: "Jika ular sawah banyak diburu manusia, hama apa yang akan merajalela?",
+                answers: ["Burung Hantu", "Katak", "Tikus", "Belalang"],
+                correct: 2
+            },
+            {
+                question: "Sumber energi utama bagi seluruh makhluk hidup di ekosistem sawah berasal dari...",
+                answers: ["Air Irigasi", "Pupuk Buatan", "Cahaya Matahari", "Zat Hara Tanah"],
+                correct: 2
+            }
+        ];
+
+        // --- GAME STATE VARIABLES ---
+        let currentScreenId = 'screen-opening';
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let playerName = "";
+        
+        // High Score Initialization (10 empty slots)
+        let highScores = Array.from({length: 10}, () => ({ name: "-", score: "-" }));
+
+        // Timeouts
+        let gameOverTimeout;
+        let highScoreTimeout;
+
+        // --- DOM ELEMENTS ---
+        const screens = {
+            opening: document.getElementById('screen-opening'),
+            menu: document.getElementById('screen-menu'),
+            quiz: document.getElementById('screen-quiz'),
+            gameover: document.getElementById('screen-gameover'),
+            highscore: document.getElementById('screen-highscore')
+        };
+        const nameInput = document.getElementById('player-name');
+        
+        // Quiz Elements
+        const hudQuestion = document.getElementById('hud-question');
+        const hudScore = document.getElementById('hud-score');
+        const questionText = document.getElementById('question-text');
+        const answersContainer = document.getElementById('answers-container');
+        
+        // Final Score Elements
+        const finalScoreDisplay = document.getElementById('final-score');
+        const highscoreBody = document.getElementById('highscore-body');
+
+        // --- CORE FUNCTIONS ---
+
+        // Screen Manager
+        function switchScreen(screenId) {
+            // Hide all
+            Object.values(screens).forEach(screen => {
+                screen.classList.remove('active');
+            });
+            // Show target
+            screens[screenId.split('-')[1]].classList.add('active');
+            currentScreenId = screenId;
+        }
+
+        // 1. Opening Logic
+        function handleOpeningInput() {
+            if (currentScreenId === 'screen-opening') {
+                switchScreen('screen-menu');
+                nameInput.value = "";
+                nameInput.focus();
+            }
+        }
+        
+        // Listeners for Opening (Press Any Button)
+        window.addEventListener('keydown', handleOpeningInput);
+        document.getElementById('screen-opening').addEventListener('click', handleOpeningInput);
+
+        // 2. Start Session (Menu -> Quiz)
+        function startSession() {
+            playerName = nameInput.value.trim().toUpperCase();
+            if (playerName === "") {
+                playerName = "PLAYER1";
+            }
+            
+            // Reset Quiz State
+            currentQuestionIndex = 0;
+            score = 0;
+            updateHud();
+            loadQuestion();
+            switchScreen('screen-quiz');
+        }
+
+        // 3. Quiz Logic
+        function updateHud() {
+            hudQuestion.innerText = `Q: ${currentQuestionIndex + 1}/10`;
+            hudScore.innerText = `SCORE: ${score}`;
+        }
+
+        function loadQuestion() {
+            const currentQ = quizData[currentQuestionIndex];
+            questionText.innerText = currentQ.question;
+            
+            // Generate Buttons
+            answersContainer.innerHTML = "";
+            currentQ.answers.forEach((ans, index) => {
+                const btn = document.createElement('button');
+                btn.className = "answer-btn";
+                btn.innerText = ans;
+                btn.onclick = () => selectAnswer(index);
+                answersContainer.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(selectedIndex) {
+            const currentQ = quizData[currentQuestionIndex];
+            
+            if (selectedIndex === currentQ.correct) {
+                score += 10;
+            } else {
+                score += 0;
+            }
+
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < quizData.length) {
+                updateHud();
+                loadQuestion();
+            } else {
+                triggerGameOver();
+            }
+        }
+
+        // 4. Game Over Logic
+        function triggerGameOver() {
+            updateHud(); // Final update
+            finalScoreDisplay.innerText = score;
+            switchScreen('screen-gameover');
+            
+            // Process High Score
+            updateHighScores(playerName, score);
+
+            // Stays for exactly 10 seconds, then goes to High Score
+            gameOverTimeout = setTimeout(() => {
+                showHighScoreScreen();
+            }, 10000);
+        }
+
+        // 5. High Score Logic
+        function updateHighScores(name, newScore) {
+            // Add new score
+            highScores.push({ name: name, score: newScore });
+            
+            // Sort Descending (Treating "-" as -1 for math)
+            highScores.sort((a, b) => {
+                let valA = a.score === "-" ? -1 : parseInt(a.score);
+                let valB = b.score === "-" ? -1 : parseInt(b.score);
+                return valB - valA;
+            });
+            
+            // Keep only Top 10
+            highScores = highScores.slice(0, 10);
+        }
+
+        function showHighScoreScreen() {
+            // Populate Table
+            highscoreBody.innerHTML = "";
+            highScores.forEach((entry, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${entry.name}</td>
+                    <td>${entry.score}</td>
+                `;
+                highscoreBody.appendChild(tr);
+            });
+
+            switchScreen('screen-highscore');
+
+            // Stays for exactly 20 seconds, then goes back to Opening
+            highScoreTimeout = setTimeout(() => {
+                switchScreen('screen-opening');
+            }, 20000);
+        }
+
+    </script>
+</body>
+</html>
