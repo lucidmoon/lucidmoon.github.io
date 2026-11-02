@@ -119,10 +119,11 @@
             margin-bottom: 20px;
         }
         .chibi-container {
-            width: 120px;
-            height: 120px;
+            width: 128px;
+            height: 128px;
             margin-bottom: 20px;
             animation: float 3s infinite ease-in-out;
+            image-rendering: pixelated;
         }
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
@@ -186,17 +187,23 @@
             padding: 0 30px;
             font-size: 14px;
             color: #fff;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
+        }
+        .illustration-box {
+            width: 96px;
+            height: 96px;
+            margin: 0 auto 15px auto;
+            image-rendering: pixelated;
         }
         .question-box {
             background: #000;
             border: 4px solid #fff;
-            padding: 20px;
+            padding: 15px;
             width: 90%;
-            font-size: 14px;
-            line-height: 1.8;
-            margin-bottom: 40px;
-            min-height: 120px;
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            min-height: 80px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -285,32 +292,8 @@
         <div id="screen-menu" class="screen">
             <h2 class="menu-title">SUPER IPA TIME!</h2>
             <!-- Chibi Illustrator SVG (Scientist Kid) -->
-            <div class="chibi-container">
-                <svg viewBox="0 0 100 100" width="100%" height="100%">
-                    <!-- Body (Lab Coat) -->
-                    <rect x="25" y="60" width="50" height="40" fill="#ffffff" rx="10"/>
-                    <line x1="50" y1="60" x2="50" y2="100" stroke="#cccccc" stroke-width="2"/>
-                    <!-- Head -->
-                    <circle cx="50" cy="40" r="25" fill="#fcdbb6"/>
-                    <!-- Hair -->
-                    <path d="M 20 40 Q 50 -10 80 40 Q 70 20 50 15 Q 30 20 20 40" fill="#331a00"/>
-                    <path d="M 22 35 Q 20 50 25 60 Q 15 50 22 35" fill="#331a00"/>
-                    <path d="M 78 35 Q 80 50 75 60 Q 85 50 78 35" fill="#331a00"/>
-                    <!-- Goggles / Glasses -->
-                    <rect x="30" y="32" width="16" height="12" rx="3" fill="none" stroke="#004488" stroke-width="3"/>
-                    <rect x="54" y="32" width="16" height="12" rx="3" fill="none" stroke="#004488" stroke-width="3"/>
-                    <line x1="46" y1="38" x2="54" y2="38" stroke="#004488" stroke-width="3"/>
-                    <!-- Eyes & Smile -->
-                    <circle cx="38" cy="38" r="2" fill="#000"/>
-                    <circle cx="62" cy="38" r="2" fill="#000"/>
-                    <path d="M 40 48 Q 50 55 60 48" fill="none" stroke="#000" stroke-width="2"/>
-                    <!-- Left Arm (Normal) -->
-                    <rect x="15" y="65" width="15" height="10" rx="3" fill="#ffffff" transform="rotate(-30 15 65)"/>
-                    <!-- Right Arm (Thumbs up) -->
-                    <rect x="70" y="65" width="10" height="20" rx="3" fill="#ffffff" transform="rotate(-30 70 65)"/>
-                    <circle cx="85" cy="55" r="5" fill="#fcdbb6"/> <!-- Hand -->
-                    <rect x="83" y="48" width="4" height="8" rx="2" fill="#fcdbb6"/> <!-- Thumb -->
-                </svg>
+            <div id="chibi-container" class="chibi-container">
+                <!-- Generated via JS -->
             </div>
             
             <div class="input-group">
@@ -325,6 +308,9 @@
             <div class="hud">
                 <span id="hud-question">Q: 1/10</span>
                 <span id="hud-score">SCORE: 0</span>
+            </div>
+            <div id="quiz-illustration" class="illustration-box">
+                <!-- SVG generated via JS -->
             </div>
             <div class="question-box" id="question-text">
                 Pertanyaan akan muncul di sini?
@@ -363,57 +349,206 @@
     </div>
 
     <script>
+        // --- PIXEL ART ASSETS & GENERATOR ---
+        const PALETTE = {
+            'k': '#000000', 'w': '#ffffff', 'r': '#e62937', 'b': '#52331a',
+            's': '#ffcca6', 'g': '#3c9f40', 'y': '#ffd600', 'd': '#8b5a2b',
+            'a': '#888888', 'o': '#ffa500', 'm': '#ff99cc', 'c': '#00ccff'
+        };
+
+        function generatePixelArtSVG(artArray, size = 16) {
+            // Kita menggunakan JS string generator untuk menyusun elemen inline SVG (menjaga kode tetap rapi)
+            let svg = `<svg viewBox="0 0 ${size} ${size}" width="100%" height="100%" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">`;
+            for (let y = 0; y < artArray.length; y++) {
+                const row = artArray[y];
+                for (let x = 0; x < row.length; x++) {
+                    const char = row[x];
+                    if (char !== ' ' && PALETTE[char]) {
+                        // 1.1x menghindari render subpixel gaps
+                        svg += `<rect x="${x}" y="${y}" width="1.1" height="1.1" fill="${PALETTE[char]}"/>`;
+                    }
+                }
+            }
+            svg += `</svg>`;
+            return svg;
+        }
+
+        // Desain Chibi Pixel Art 16x16
+        const chibiArt = [
+            "      bbbb      ",
+            "     bssssb     ",
+            "    bskskskb    ",
+            "    bssssssb    ",
+            "      bbbb      ",
+            "      wwww   ss ",
+            "     wwrrww  sk ",
+            "    wwwwwwww s  ",
+            "    ww www ww w ",
+            "    ww www wwww ",
+            "    ss www ssww ",
+            "       rrr      ",
+            "       rrr      ",
+            "       s s      ",
+            "       k k      ",
+            "      kk kk     "
+        ];
+
         // --- GAME DATA: IPA Kelas 5 SD (Rantai Makanan & Ekosistem Sawah) ---
         const quizData = [
             {
                 question: "Produsen utama penghasil energi dalam ekosistem sawah adalah...",
                 answers: ["Tikus", "Tanaman Padi", "Ular", "Katak"],
-                correct: 1
+                correct: 1,
+                art: [
+                    "                ",
+                    "       y y      ",
+                    "      yy yy     ",
+                    "      ygygy     ",
+                    "       ggg      ",
+                    "        g       ",
+                    "     g  g  g    ",
+                    "      g g g     ",
+                    "       ggg      ",
+                    "        g       ",
+                    "        g       ",
+                    "        g       "
+                ]
             },
             {
                 question: "Hewan yang berperan sebagai konsumen tingkat I (pemakan padi) adalah...",
                 answers: ["Belalang", "Burung Elang", "Katak", "Ular Sawah"],
-                correct: 0
+                correct: 0,
+                art: [
+                    "                ",
+                    "       gg       ",
+                    "      gkg       ",
+                    "   g gggg g     ",
+                    "    g g g g     ",
+                    "      ggg       ",
+                    "     gg gg      ",
+                    "     g   g      "
+                ]
             },
             {
                 question: "Dalam rantai makanan di sawah, katak berfungsi memakan...",
                 answers: ["Padi", "Ular", "Belalang", "Elang"],
-                correct: 2
+                correct: 2,
+                art: [
+                    "                ",
+                    "                ",
+                    "      g  g      ",
+                    "     gkgkgg     ",
+                    "    gggggggg    ",
+                    "    gggggggg    ",
+                    "    gg w w gg   ",
+                    "    g gggg g    "
+                ]
             },
             {
                 question: "Apa yang akan terjadi pada ekosistem jika populasi katak menurun drastis?",
                 answers: ["Padi tumbuh subur", "Belalang bertambah banyak", "Ular bertambah banyak", "Elang bertambah banyak"],
-                correct: 1
+                correct: 1,
+                art: [
+                    "  gg       rrr  ",
+                    " gkg       r r  ",
+                    " gggg       r   ",
+                    "        ggg     ",
+                    "  www  gkgkgg   ",
+                    "   w  gggggggg  ",
+                    "  w w gggggggg  ",
+                    " w   w ggwwgg   "
+                ]
             },
             {
                 question: "Peran burung elang dalam ekosistem sawah adalah sebagai...",
                 answers: ["Produsen", "Konsumen Puncak (III)", "Dekomposer", "Konsumen I"],
-                correct: 1
+                correct: 1,
+                art: [
+                    "                ",
+                    "    ddd  ddd    ",
+                    "   dddddddddd   ",
+                    "   ddwwddwwdd   ",
+                    "   ddwkddwkdd   ",
+                    "    dddyyddd    ",
+                    "      yyyy      ",
+                    "       yy       "
+                ]
             },
             {
                 question: "Organisme yang bertugas menguraikan bangkai elang yang mati adalah...",
                 answers: ["Jamur & Bakteri", "Cacing Tanah", "Rumput", "Tanaman Padi"],
-                correct: 0
+                correct: 0,
+                art: [
+                    "                ",
+                    "      rrrr      ",
+                    "     rwrwrr     ",
+                    "    rrwrwwrr    ",
+                    "    rrrrrrrr    ",
+                    "      wwww      ",
+                    "      wwww      ",
+                    "     gwwwwg     "
+                ]
             },
             {
                 question: "Susunan rantai makanan yang benar di bawah ini adalah...",
                 answers: ["Padi-Katak-Belalang-Ular", "Padi-Belalang-Katak-Ular", "Padi-Ular-Katak-Belalang", "Katak-Padi-Ular-Belalang"],
-                correct: 1
+                correct: 1,
+                art: [
+                    "      y         ",
+                    "     ygy   gg   ",
+                    "      g   gkg   ",
+                    "  w  ggg  gggg  ",
+                    " www  g         ",
+                    "      g gkgkgg  ",
+                    "      gggggggg  ",
+                    "      gg ww gg  "
+                ]
             },
             {
                 question: "Hubungan antara padi dan gulma (rumput liar) yang tumbuh di sawah adalah...",
                 answers: ["Simbiosis Mutualisme", "Kompetisi", "Parasitisme", "Predasi"],
-                correct: 1
+                correct: 1,
+                art: [
+                    "                ",
+                    "   y y     gg   ",
+                    "  yy yy   gggg  ",
+                    "  ygygy    gg   ",
+                    "   ggg     gg   ",
+                    "    g       g   ",
+                    "  g g g   g g g ",
+                    "   ggg     ggg  "
+                ]
             },
             {
                 question: "Jika ular sawah banyak diburu manusia, hama apa yang akan merajalela?",
                 answers: ["Burung Hantu", "Katak", "Tikus", "Belalang"],
-                correct: 2
+                correct: 2,
+                art: [
+                    "                ",
+                    "   a        a   ",
+                    "  ama      ama  ",
+                    "  aaa      aaa  ",
+                    "   aaaaaaaaaa   ",
+                    "   aak a a kaa  ",
+                    "    aaa m aaa   ",
+                    "      aaaa      "
+                ]
             },
             {
                 question: "Sumber energi utama bagi seluruh makhluk hidup di ekosistem sawah berasal dari...",
                 answers: ["Air Irigasi", "Pupuk Buatan", "Cahaya Matahari", "Zat Hara Tanah"],
-                correct: 2
+                correct: 2,
+                art: [
+                    "  y   o  o   y  ",
+                    "    yyy  yyy    ",
+                    "  o yyyyyyyy o  ",
+                    "   yyyyyyyyyy   ",
+                    " o yykkyykkyy o ",
+                    "   yyyyyyyyyy   ",
+                    "  o yyyyoyyy o  ",
+                    "    yyy  yyy    ",
+                    "  y   o  o   y  "
+                ]
             }
         ];
 
@@ -443,6 +578,7 @@
         // Quiz Elements
         const hudQuestion = document.getElementById('hud-question');
         const hudScore = document.getElementById('hud-score');
+        const quizIllustration = document.getElementById('quiz-illustration');
         const questionText = document.getElementById('question-text');
         const answersContainer = document.getElementById('answers-container');
         
@@ -466,6 +602,9 @@
         // 1. Opening Logic
         function handleOpeningInput() {
             if (currentScreenId === 'screen-opening') {
+                // Generate and insert the Chibi Pixel Art
+                document.getElementById('chibi-container').innerHTML = generatePixelArtSVG(chibiArt);
+
                 switchScreen('screen-menu');
                 nameInput.value = "";
                 nameInput.focus();
@@ -500,6 +639,9 @@
         function loadQuestion() {
             const currentQ = quizData[currentQuestionIndex];
             questionText.innerText = currentQ.question;
+            
+            // Set Illustration
+            quizIllustration.innerHTML = generatePixelArtSVG(currentQ.art);
             
             // Generate Buttons
             answersContainer.innerHTML = "";
@@ -540,10 +682,10 @@
             // Process High Score
             updateHighScores(playerName, score);
 
-            // Stays for exactly 10 seconds, then goes to High Score
+            // Stays for exactly 3 seconds, then goes to High Score
             gameOverTimeout = setTimeout(() => {
                 showHighScoreScreen();
-            }, 10000);
+            }, 3000);
         }
 
         // 5. High Score Logic
@@ -577,10 +719,10 @@
 
             switchScreen('screen-highscore');
 
-            // Stays for exactly 20 seconds, then goes back to Opening
+            // Stays for exactly 10 seconds, then goes back to Opening
             highScoreTimeout = setTimeout(() => {
                 switchScreen('screen-opening');
-            }, 20000);
+            }, 10000);
         }
 
     </script>
