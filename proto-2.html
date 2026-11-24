@@ -407,6 +407,8 @@
       border: 3px solid var(--border-dark);
       padding: 8px 10px;
       position: relative;
+      z-index: 10;
+      pointer-events: auto;
     }
 
     .coin-slot-housing {
@@ -415,6 +417,8 @@
       justify-content: center;
       gap: 10px;
       width: 100%;
+      position: relative;
+      z-index: 11;
     }
 
     /* Authentic Red Arcade Reject/Coin Button + Vertical Coin Slit */
@@ -435,7 +439,9 @@
       align-items: center;
       gap: 8px;
       position: relative;
-      transition: transform 0.08s;
+      z-index: 12;
+      pointer-events: auto;
+      transition: transform 0.08s, box-shadow 0.12s;
     }
 
     .insert-coin-btn:hover {
@@ -445,6 +451,11 @@
     .insert-coin-btn:active {
       transform: translateY(3px);
       box-shadow: inset -2px -2px 0 #9e1924, 0 0 0 var(--border-dark);
+    }
+
+    .insert-coin-btn.highlight-nudge {
+      outline: 3px solid var(--accent-gold);
+      box-shadow: 0 0 14px var(--accent-gold);
     }
 
     .coin-slit-plate {
@@ -457,6 +468,7 @@
       justify-content: center;
       position: relative;
       flex-shrink: 0;
+      cursor: pointer;
     }
 
     .coin-slit-hole {
@@ -464,6 +476,7 @@
       height: 26px;
       background: #000;
       border: 1px solid #ffd166;
+      pointer-events: none;
     }
 
     .pixel-coin-icon {
@@ -475,12 +488,22 @@
       box-shadow: inset -2px -2px 0 var(--accent-gold-dark), inset 2px 2px 0 #fff3b0;
       border-radius: 50%;
       flex-shrink: 0;
+      pointer-events: none;
     }
 
     @keyframes coinDropAnim {
       0% { transform: translateY(-22px) scale(1.1); opacity: 1; }
       60% { transform: translateY(0px) scale(0.85); opacity: 1; }
       100% { transform: translateY(6px) scale(0.2); opacity: 0; }
+    }
+
+    @keyframes creditFlashAnim {
+      0% { transform: scale(1.15); color: var(--accent-green); text-shadow: 0 0 8px var(--accent-green); }
+      100% { transform: scale(1); color: var(--accent-gold); text-shadow: none; }
+    }
+
+    .credit-flash {
+      animation: creditFlashAnim 0.35s steps(4);
     }
 
     .dropping-coin {
@@ -1351,9 +1374,9 @@
         <div class="arcade-cabinet-controls">
           <div class="cabinet-row">
             <div class="name-entry-group">
-              <label for="startPlayerNameInput" class="cabinet-label">1. ENTER MAGE NAME</label>
+              <label for="player-name-input" class="cabinet-label">1. ENTER MAGE NAME</label>
               <input
-                id="startPlayerNameInput"
+                id="player-name-input"
                 class="start-name-input"
                 type="text"
                 maxlength="8"
@@ -1366,7 +1389,7 @@
             <div class="coin-slot-group">
               <span class="cabinet-label">2. ARCADE COIN DOOR</span>
               <div class="coin-slot-housing">
-                <button id="insertCoinBtn" class="insert-coin-btn" type="button" aria-label="Insert Coin">
+                <button id="btn-insert-coin" class="insert-coin-btn" type="button" aria-label="Insert Coin">
                   <span class="pixel-coin-icon" aria-hidden="true"></span>
                   <span>INSERT COIN</span>
                 </button>
@@ -1379,11 +1402,11 @@
 
           <div class="credit-led-bar">
             <span id="creditPromptText" class="credit-status-text">INSERT COIN TO PLAY!</span>
-            <span id="creditCounterText" class="credit-counter">CREDIT 00</span>
+            <span id="credit-display" class="credit-counter">CREDIT 00</span>
           </div>
         </div>
 
-        <button id="startBtn" class="pixel-btn locked" type="button">
+        <button id="btn-start" class="pixel-btn locked" type="button">
           <span id="startBtnLabel">🪙 INSERT COIN FIRST</span>
         </button>
 
@@ -1583,37 +1606,45 @@
       }
 
       init() {
-        if (!this.ctx) {
-          const AudioCtx = window.AudioContext || window.webkitAudioContext;
-          if (AudioCtx) {
-            this.ctx = new AudioCtx();
+        try {
+          if (!this.ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) {
+              this.ctx = new AudioCtx();
+            }
           }
-        }
-        if (this.ctx && this.ctx.state === 'suspended') {
-          this.ctx.resume();
+          if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume().catch(() => {});
+          }
+        } catch (err) {
+          // AudioContext blocked or unsupported; continue silently
         }
       }
 
       playTone(freq, type, duration, delay = 0, gainVal = 0.12) {
         if (this.muted) return;
-        this.init();
-        if (!this.ctx) return;
+        try {
+          this.init();
+          if (!this.ctx) return;
 
-        const now = this.ctx.currentTime + delay;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
+          const now = this.ctx.currentTime + delay;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
 
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, now);
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, now);
 
-        gain.gain.setValueAtTime(gainVal, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+          gain.gain.setValueAtTime(gainVal, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
 
-        osc.start(now);
-        osc.stop(now + duration);
+          osc.start(now);
+          osc.stop(now + duration);
+        } catch (err) {
+          // Never allow audio issues to interrupt UI state updates
+        }
       }
 
       blip() {
@@ -1639,8 +1670,8 @@
 
       correct() {
         // Ascending 8-bit coin/spell chime
-        this.playTone(587.33, 'square', 0.09, 0, 0.12);     // D5
-        this.playTone(880.00, 'square', 0.18, 0.08, 0.13);  // A5
+        this.playTone(587.33, 'square', 0.09, 0, 0.12);       // D5
+        this.playTone(880.00, 'square', 0.18, 0.08, 0.13);    // A5
         this.playTone(1174.66, 'triangle', 0.22, 0.15, 0.12); // D6
       }
 
@@ -1667,279 +1698,115 @@
     const sfx = new RetroAudio();
 
     /* ========================================================================
-       4. PERSISTENT LOCAL HIGH SCORE MANAGER (localStorage)
+       2. 16x16 PIXEL-ART CANVAS SPRITE RENDERER
        ======================================================================== */
-    const STORAGE_KEY = 'calculus_quest_highscores_v1';
-    const PLAYER_NAME_KEY = 'calculus_quest_player_name_v1';
-    const DEFAULT_HIGHSCORES = [
-      { id: 'def-1', name: 'NEWTON', score: 900, accuracy: '9/10', rank: 'DERIVATIVE PALADIN', date: 'CLASSIC' },
-      { id: 'def-2', name: 'LEIBNIZ', score: 800, accuracy: '8/10', rank: 'DERIVATIVE PALADIN', date: 'CLASSIC' },
-      { id: 'def-3', name: 'EULER', score: 700, accuracy: '7/10', rank: 'INTEGRAL RANGER', date: 'CLASSIC' }
-    ];
-
-    function formatShortDate(dateObj = new Date()) {
-      const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-      return `${months[dateObj.getMonth()]} ${String(dateObj.getDate()).padStart(2, '0')}`;
-    }
-
-    function loadHighScores() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_HIGHSCORES));
-          return DEFAULT_HIGHSCORES.slice();
-        }
-        const parsed = JSON.parse(raw);
-        if (!Array.isArray(parsed) || parsed.length === 0) {
-          return [];
-        }
-        return parsed
-          .sort((a, b) => b.score - a.score)
-          .slice(0, 5);
-      } catch (err) {
-        return DEFAULT_HIGHSCORES.slice();
-      }
-    }
-
-    function saveHighScoresList(scores) {
-      try {
-        const trimmed = scores.sort((a, b) => b.score - a.score).slice(0, 5);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
-      } catch (err) {
-        // Ignore storage quota errors in restricted sandboxes
-      }
-    }
-
-    function resetHighScoresToDefault() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_HIGHSCORES));
-      } catch (err) {
-        // Ignore
-      }
-    }
-
-    function qualifiesForTop5(scoreVal) {
-      if (scoreVal <= 0) return false;
-      const list = loadHighScores();
-      if (list.length < 5) return true;
-      const lowestTopScore = list[list.length - 1].score;
-      return scoreVal > lowestTopScore;
-    }
-
-    function sanitizePlayerName(raw) {
-      const cleaned = String(raw || '')
-        .trim()
-        .toUpperCase()
-        .replace(/[^A-Z0-9_-]/g, '')
-        .slice(0, 8);
-      return cleaned || 'SCHOLAR';
-    }
-
-    function loadSavedPlayerName() {
-      try {
-        return localStorage.getItem(PLAYER_NAME_KEY) || '';
-      } catch (e) {
-        return '';
-      }
-    }
-
-    function persistPlayerName(name) {
-      try {
-        localStorage.setItem(PLAYER_NAME_KEY, name);
-      } catch (e) {
-        // Ignore storage errors
-      }
-    }
-
-    function renderHighScoreTable(tbodyEl, bestBadgeEl, highlightId = null) {
-      if (!tbodyEl) return;
-      const scores = loadHighScores();
-      const topScore = scores.length > 0 ? scores[0].score : 0;
-
-      if (bestBadgeEl) {
-        bestBadgeEl.textContent = `BEST: ${topScore} PTS`;
-      }
-
-      tbodyEl.innerHTML = '';
-      if (scores.length === 0) {
-        tbodyEl.innerHTML = `
-          <tr>
-            <td colspan="5" style="text-align:center; color: var(--text-muted); padding: 12px;">
-              NO RECORDS YET — BE THE FIRST MAGE!
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      const rankLabels = ['1ST', '2ND', '3RD', '4TH', '5TH'];
-      scores.forEach((entry, idx) => {
-        const tr = document.createElement('tr');
-        if (highlightId && entry.id === highlightId) {
-          tr.classList.add('highlight-row');
-        }
-        const rankClass = idx === 0 ? 'top-1' : idx === 1 ? 'top-2' : idx === 2 ? 'top-3' : '';
-        tr.innerHTML = `
-          <td class="hs-rank ${rankClass}">${rankLabels[idx] || `#${idx + 1}`}</td>
-          <td class="hs-name">${escapeHtml(entry.name)}</td>
-          <td class="hs-acc">${escapeHtml(entry.accuracy)}</td>
-          <td class="hs-score">${entry.score} PTS</td>
-          <td class="hs-date">${escapeHtml(entry.date || '')}</td>
-        `;
-        tbodyEl.appendChild(tr);
-      });
-    }
-
-    function escapeHtml(str) {
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    }
-
-    /* ========================================================================
-       5. APPLICATION STATE & DOM REFERENCES
-       ======================================================================== */
-    const state = {
-      credits: 0,
-      playerName: 'SCHOLAR',
-      currentIndex: 0,
-      score: 0,       // Correct answers out of 10
-      points: 0,      // Total score out of 1000 (100 pts per correct answer)
-      streak: 0,
-      maxStreak: 0,
-      wizardHp: 100,
-      answered: false,
-      savedRunId: null,
-      history: []     // Stores { number, topic, prompt, selectedHTML, correctHTML, isCorrect, explanation }
+    const SPRITE_PALETTE = {
+      '.': null,
+      'k': '#090612', // Outline black
+      'b': '#3a86ff', // Wizard robe blue
+      'c': '#4cc9f0', // Cyan highlight
+      'g': '#ffd166', // Gold trim / crown / eyes
+      's': '#ffcdb2', // Skin tone
+      'w': '#f8f9fa', // White beard / teeth / highlight
+      'm': '#06d6a0', // Slime emerald green
+      'l': '#80ffdb', // Slime light specular
+      'p': '#7209b7', // Golem deep purple
+      'v': '#b5179e', // Golem violet highlight
+      'r': '#ef476f', // Dragon crimson
+      'o': '#f77f00'  // Dragon orange flame
     };
 
-    const dom = {
-      topCreditBanner: document.getElementById('topCreditBanner'),
-      crtOverlay: document.getElementById('crtOverlay'),
-      crtToggleBtn: document.getElementById('crtToggleBtn'),
-      soundToggleBtn: document.getElementById('soundToggleBtn'),
-
-      startScreen: document.getElementById('startScreen'),
-      quizScreen: document.getElementById('quizScreen'),
-      resultsScreen: document.getElementById('resultsScreen'),
-
-      previewWizardCanvas: document.getElementById('previewWizardCanvas'),
-      previewWizardTag: document.getElementById('previewWizardTag'),
-      previewMonsterCanvas: document.getElementById('previewMonsterCanvas'),
-      startPlayerNameInput: document.getElementById('startPlayerNameInput'),
-      insertCoinBtn: document.getElementById('insertCoinBtn'),
-      coinSlitPlate: document.getElementById('coinSlitPlate'),
-      creditPromptText: document.getElementById('creditPromptText'),
-      creditCounterText: document.getElementById('creditCounterText'),
-      startBtn: document.getElementById('startBtn'),
-      startBtnLabel: document.getElementById('startBtnLabel'),
-      startHighScoreBody: document.getElementById('startHighScoreBody'),
-      startPersonalBest: document.getElementById('startPersonalBest'),
-      resetControlsWrap: document.getElementById('resetControlsWrap'),
-
-      hudStage: document.getElementById('hudStage'),
-      hudScore: document.getElementById('hudScore'),
-      hudStreak: document.getElementById('hudStreak'),
-      progressTrack: document.getElementById('progressTrack'),
-      progressFill: document.getElementById('progressFill'),
-
-      wizardHpFill: document.getElementById('wizardHpFill'),
-      monsterHpFill: document.getElementById('monsterHpFill'),
-      wizardCanvas: document.getElementById('wizardCanvas'),
-      hudPlayerTag: document.getElementById('hudPlayerTag'),
-      monsterCanvas: document.getElementById('monsterCanvas'),
-      monsterName: document.getElementById('monsterName'),
-      topicBadge: document.getElementById('topicBadge'),
-      battleToast: document.getElementById('battleToast'),
-
-      questionPrompt: document.getElementById('questionPrompt'),
-      questionMath: document.getElementById('questionMath'),
-      optionsGrid: document.getElementById('optionsGrid'),
-
-      feedbackPanel: document.getElementById('feedbackPanel'),
-      feedbackHeader: document.getElementById('feedbackHeader'),
-      feedbackBody: document.getElementById('feedbackBody'),
-      nextBtn: document.getElementById('nextBtn'),
-      nextBtnLabel: document.getElementById('nextBtnLabel'),
-
-      rankBadge: document.getElementById('rankBadge'),
-      finalScoreText: document.getElementById('finalScoreText'),
-      finalFlavorText: document.getElementById('finalFlavorText'),
-      finalXp: document.getElementById('finalXp'),
-      finalMaxStreak: document.getElementById('finalMaxStreak'),
-      finalAccuracy: document.getElementById('finalAccuracy'),
-
-      newRecordBox: document.getElementById('newRecordBox'),
-      newRecordTitle: document.getElementById('newRecordTitle'),
-      recordedNameDisplay: document.getElementById('recordedNameDisplay'),
-      saveScoreForm: document.getElementById('saveScoreForm'),
-      playerInitialsInput: document.getElementById('playerInitialsInput'),
-      endHighScoreBody: document.getElementById('endHighScoreBody'),
-      endPersonalBest: document.getElementById('endPersonalBest'),
-
-      reviewList: document.getElementById('reviewList'),
-      endInsertCoinBtn: document.getElementById('endInsertCoinBtn'),
-      endCreditCount: document.getElementById('endCreditCount'),
-      playAgainBtn: document.getElementById('playAgainBtn'),
-      playAgainBtnLabel: document.getElementById('playAgainBtnLabel')
+    const SPRITE_MAPS = {
+      wizard: [
+        '.......gg.......',
+        '......gbbg......',
+        '.....gbbbbg.....',
+        '....bbbbbbbb....',
+        '...gggggggggg...',
+        '....kssssssk....',
+        '....kskkksk.....',
+        '.....kwwwwk.....',
+        '....kwwwwwwk....',
+        '...bbbbwwbbbb...',
+        '..cbbbbwwbbbbc..',
+        '..cbbgbbbbgbbc..',
+        '..k..bbbbbb..k..',
+        '....bbbbbbbb....',
+        '....kk....kk....',
+        '...kkk....kkk...'
+      ],
+      slime: [
+        '................',
+        '................',
+        '......kkkk......',
+        '....kkmmmmkk....',
+        '...kmmllllmmk...',
+        '..kmmllmmmmmmk..',
+        '..kmmmmmmmmmmk..',
+        '.kmmkkmmmmkkmmk.',
+        '.kmmkwmmmmkwmmk.',
+        '.kmmmmmmmmmmmmk.',
+        '.kmmmmkkkkmmmmk.',
+        '.kmmmmmmmmmmmmk.',
+        '..kmmmmmmmmmmk..',
+        '...kkkkkkkkkk...',
+        '................',
+        '................'
+      ],
+      golem: [
+        '....kkkkkkkk....',
+        '...kppppppppk...',
+        '..kpvvppppvvpk..',
+        '..kppppppppppk..',
+        '.kkppgppppgppkk.',
+        'kppppppppppppppk',
+        'kpvvppppppppvvpk',
+        'kppppkkkkkkppppk',
+        'kppppkwwwwkppppk',
+        '.kkppppppppppkk.',
+        '..kppvvvvvvppk..',
+        '..kppppppppppk..',
+        '..kppk....kppk..',
+        '.kpppk....kpppk.',
+        '.kkkk......kkkk.',
+        '................'
+      ],
+      dragon: [
+        '..kk........kk..',
+        '.krrk..gg..krrk.',
+        '.krrrkggggkrrrk.',
+        '..krrrrrrrrrrk..',
+        '..krrgkkkkgrrk..',
+        '.krrrrrrrrrrrrk.',
+        '.krrorrrrrrorrk.',
+        '.krrrooooooorrk.',
+        '..krrwwrrwwrrk..',
+        '...krrrrrrrrk...',
+        '..koorrrrrrook..',
+        '.koooorrrrooook.',
+        '..krrrrrrrrrrk..',
+        '...krrk..krrk...',
+        '..krrrk..krrrk..',
+        '..kkkk....kkkk..'
+      ]
     };
 
-    /* ========================================================================
-       6. HELPER UTILITIES & ARCADE COIN MECHANIC
-       ======================================================================== */
-    function updateCreditUI() {
-      const formatted = String(state.credits).padStart(2, '0');
-      dom.creditCounterText.textContent = `CREDIT ${formatted}`;
-      dom.topCreditBanner.textContent = `CREDIT ${formatted} • AP CALC EDITION`;
-      if (dom.endCreditCount) {
-        dom.endCreditCount.textContent = formatted;
-      }
-
-      if (state.credits > 0) {
-        dom.creditPromptText.textContent = 'READY PLAYER 1!';
-        dom.creditPromptText.classList.add('ready');
-        dom.startBtn.classList.remove('locked');
-        dom.startBtnLabel.textContent = '▶ PRESS START';
-
-        dom.playAgainBtn.classList.remove('locked');
-        dom.playAgainBtnLabel.textContent = '↻ PLAY AGAIN (1 COIN)';
-      } else {
-        dom.creditPromptText.textContent = 'INSERT COIN TO PLAY!';
-        dom.creditPromptText.classList.remove('ready');
-        dom.startBtn.classList.add('locked');
-        dom.startBtnLabel.textContent = '🪙 INSERT COIN FIRST';
-
-        dom.playAgainBtn.classList.add('locked');
-        dom.playAgainBtnLabel.textContent = '🪙 INSERT COIN TO REPLAY';
-      }
-    }
-
-    function insertCoin(animateSlot = true) {
-      if (state.credits < 9) {
-        state.credits += 1;
-      }
-      sfx.coin();
-      updateCreditUI();
-
-      if (animateSlot && dom.coinSlitPlate) {
-        const coinEl = document.createElement('span');
-        coinEl.className = 'pixel-coin-icon dropping-coin';
-        dom.coinSlitPlate.appendChild(coinEl);
-        setTimeout(() => coinEl.remove(), 380);
-      }
-    }
-
-    function syncPlayerNameFromInput() {
-      const name = sanitizePlayerName(dom.startPlayerNameInput.value);
-      state.playerName = name;
-      persistPlayerName(name);
-      if (dom.previewWizardTag) {
-        dom.previewWizardTag.textContent = name;
-      }
-      if (dom.hudPlayerTag) {
-        dom.hudPlayerTag.textContent = `${name} LV.1`;
+    function drawSprite(canvas, spriteKey) {
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      const rows = SPRITE_MAPS[spriteKey] || SPRITE_MAPS.slime;
+      ctx.clearRect(0, 0, 16, 16);
+      for (let y = 0; y < 16; y++) {
+        const row = rows[y];
+        for (let x = 0; x < 16; x++) {
+          const ch = row[x];
+          const color = SPRITE_PALETTE[ch];
+          if (color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, 1, 1);
+          }
+        }
       }
     }
 
@@ -2143,19 +2010,156 @@
     ];
 
     /* ========================================================================
-       4. APPLICATION STATE & DOM REFERENCES
+       4. PERSISTENT LOCAL HIGH SCORE MANAGER (localStorage)
+       ======================================================================== */
+    const STORAGE_KEY = 'calculus_quest_highscores_v1';
+    const PLAYER_NAME_KEY = 'calculus_quest_player_name_v1';
+    const DEFAULT_HIGHSCORES = [
+      { id: 'def-1', name: 'NEWTON', score: 900, accuracy: '9/10', rank: 'DERIVATIVE PALADIN', date: 'CLASSIC' },
+      { id: 'def-2', name: 'LEIBNIZ', score: 800, accuracy: '8/10', rank: 'DERIVATIVE PALADIN', date: 'CLASSIC' },
+      { id: 'def-3', name: 'EULER', score: 700, accuracy: '7/10', rank: 'INTEGRAL RANGER', date: 'CLASSIC' }
+    ];
+
+    function formatShortDate(dateObj = new Date()) {
+      const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+      return `${months[dateObj.getMonth()]} ${String(dateObj.getDate()).padStart(2, '0')}`;
+    }
+
+    function loadHighScores() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_HIGHSCORES));
+          return DEFAULT_HIGHSCORES.slice();
+        }
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed) || parsed.length === 0) {
+          return [];
+        }
+        return parsed
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 5);
+      } catch (err) {
+        return DEFAULT_HIGHSCORES.slice();
+      }
+    }
+
+    function saveHighScoresList(scores) {
+      try {
+        const trimmed = scores.sort((a, b) => b.score - a.score).slice(0, 5);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
+      } catch (err) {
+        // Ignore storage quota errors in restricted sandboxes
+      }
+    }
+
+    function resetHighScoresToDefault() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_HIGHSCORES));
+      } catch (err) {
+        // Ignore
+      }
+    }
+
+    function qualifiesForTop5(scoreVal) {
+      if (scoreVal <= 0) return false;
+      const list = loadHighScores();
+      if (list.length < 5) return true;
+      const lowestTopScore = list[list.length - 1].score;
+      return scoreVal > lowestTopScore;
+    }
+
+    function sanitizePlayerName(raw) {
+      const cleaned = String(raw || '')
+        .trim()
+        .toUpperCase()
+        .replace(/[^A-Z0-9_-]/g, '')
+        .slice(0, 8);
+      return cleaned || 'SCHOLAR';
+    }
+
+    function loadSavedPlayerName() {
+      try {
+        return localStorage.getItem(PLAYER_NAME_KEY) || '';
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function persistPlayerName(name) {
+      try {
+        localStorage.setItem(PLAYER_NAME_KEY, name);
+      } catch (e) {
+        // Ignore storage errors
+      }
+    }
+
+    function renderHighScoreTable(tbodyEl, bestBadgeEl, highlightId = null) {
+      if (!tbodyEl) return;
+      const scores = loadHighScores();
+      const topScore = scores.length > 0 ? scores[0].score : 0;
+
+      if (bestBadgeEl) {
+        bestBadgeEl.textContent = `BEST: ${topScore} PTS`;
+      }
+
+      tbodyEl.innerHTML = '';
+      if (scores.length === 0) {
+        tbodyEl.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align:center; color: var(--text-muted); padding: 12px;">
+              NO RECORDS YET — BE THE FIRST MAGE!
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      const rankLabels = ['1ST', '2ND', '3RD', '4TH', '5TH'];
+      scores.forEach((entry, idx) => {
+        const tr = document.createElement('tr');
+        if (highlightId && entry.id === highlightId) {
+          tr.classList.add('highlight-row');
+        }
+        const rankClass = idx === 0 ? 'top-1' : idx === 1 ? 'top-2' : idx === 2 ? 'top-3' : '';
+        tr.innerHTML = `
+          <td class="hs-rank ${rankClass}">${rankLabels[idx] || `#${idx + 1}`}</td>
+          <td class="hs-name">${escapeHtml(entry.name)}</td>
+          <td class="hs-acc">${escapeHtml(entry.accuracy)}</td>
+          <td class="hs-score">${entry.score} PTS</td>
+          <td class="hs-date">${escapeHtml(entry.date || '')}</td>
+        `;
+        tbodyEl.appendChild(tr);
+      });
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    /* ========================================================================
+       5. APPLICATION STATE & DOM REFERENCES
        ======================================================================== */
     const state = {
+      credits: 0,
+      playerName: 'SCHOLAR',
       currentIndex: 0,
-      score: 0,
-      xp: 0,
+      score: 0,       // Correct answers out of 10
+      points: 0,      // Total score out of 1000 (100 pts per correct answer)
       streak: 0,
       maxStreak: 0,
+      wizardHp: 100,
       answered: false,
-      history: [] // Stores { question, selectedText, correctText, isCorrect }
+      savedRunId: null,
+      history: []     // Stores { number, topic, prompt, selectedHTML, correctHTML, isCorrect, explanation }
     };
 
     const dom = {
+      topCreditBanner: document.getElementById('topCreditBanner'),
       crtOverlay: document.getElementById('crtOverlay'),
       crtToggleBtn: document.getElementById('crtToggleBtn'),
       soundToggleBtn: document.getElementById('soundToggleBtn'),
@@ -2165,8 +2169,18 @@
       resultsScreen: document.getElementById('resultsScreen'),
 
       previewWizardCanvas: document.getElementById('previewWizardCanvas'),
+      previewWizardTag: document.getElementById('previewWizardTag'),
       previewMonsterCanvas: document.getElementById('previewMonsterCanvas'),
-      startBtn: document.getElementById('startBtn'),
+      startPlayerNameInput: document.getElementById('player-name-input'),
+      insertCoinBtn: document.getElementById('btn-insert-coin'),
+      coinSlitPlate: document.getElementById('coinSlitPlate'),
+      creditPromptText: document.getElementById('creditPromptText'),
+      creditCounterText: document.getElementById('credit-display'),
+      startBtn: document.getElementById('btn-start'),
+      startBtnLabel: document.getElementById('startBtnLabel'),
+      startHighScoreBody: document.getElementById('startHighScoreBody'),
+      startPersonalBest: document.getElementById('startPersonalBest'),
+      resetControlsWrap: document.getElementById('resetControlsWrap'),
 
       hudStage: document.getElementById('hudStage'),
       hudScore: document.getElementById('hudScore'),
@@ -2174,7 +2188,10 @@
       progressTrack: document.getElementById('progressTrack'),
       progressFill: document.getElementById('progressFill'),
 
+      wizardHpFill: document.getElementById('wizardHpFill'),
+      monsterHpFill: document.getElementById('monsterHpFill'),
       wizardCanvas: document.getElementById('wizardCanvas'),
+      hudPlayerTag: document.getElementById('hudPlayerTag'),
       monsterCanvas: document.getElementById('monsterCanvas'),
       monsterName: document.getElementById('monsterName'),
       topicBadge: document.getElementById('topicBadge'),
@@ -2196,12 +2213,24 @@
       finalXp: document.getElementById('finalXp'),
       finalMaxStreak: document.getElementById('finalMaxStreak'),
       finalAccuracy: document.getElementById('finalAccuracy'),
+
+      newRecordBox: document.getElementById('newRecordBox'),
+      newRecordTitle: document.getElementById('newRecordTitle'),
+      recordedNameDisplay: document.getElementById('recordedNameDisplay'),
+      saveScoreForm: document.getElementById('saveScoreForm'),
+      playerInitialsInput: document.getElementById('playerInitialsInput'),
+      endHighScoreBody: document.getElementById('endHighScoreBody'),
+      endPersonalBest: document.getElementById('endPersonalBest'),
+
       reviewList: document.getElementById('reviewList'),
-      playAgainBtn: document.getElementById('playAgainBtn')
+      endInsertCoinBtn: document.getElementById('endInsertCoinBtn'),
+      endCreditCount: document.getElementById('endCreditCount'),
+      playAgainBtn: document.getElementById('playAgainBtn'),
+      playAgainBtnLabel: document.getElementById('playAgainBtnLabel')
     };
 
     /* ========================================================================
-       5. HELPER UTILITIES
+       6. HELPER UTILITIES & ARCADE COIN MECHANIC
        ======================================================================== */
     function shuffleArray(arr) {
       const copy = arr.slice();
@@ -2218,10 +2247,9 @@
     }
 
     function triggerBattleAnimation(isHit) {
-      // Reset classes
       dom.wizardCanvas.classList.remove('anim-wizard-attack', 'anim-wizard-hurt');
       dom.monsterCanvas.classList.remove('anim-monster-hit', 'anim-monster-attack');
-      void dom.wizardCanvas.offsetWidth; // Force reflow
+      void dom.wizardCanvas.offsetWidth;
 
       if (isHit) {
         dom.wizardCanvas.classList.add('anim-wizard-attack');
@@ -2232,225 +2260,65 @@
       }
     }
 
-    /* ========================================================================
-       6. CORE QUIZ GAMEPLAY LOGIC
-       ======================================================================== */
-    function startNewQuest() {
-      state.currentIndex = 0;
-      state.score = 0;
-      state.xp = 0;
-      state.streak = 0;
-      state.maxStreak = 0;
-      state.answered = false;
-      state.history = [];
-
-      sfx.startFanfare();
-      showScreen(dom.quizScreen);
-      renderQuestion();
-    }
-
-    function updateHud() {
-      const qNum = state.currentIndex + 1;
-      const total = QUESTIONS.length;
-      dom.hudStage.textContent = `${qNum} / ${total}`;
-      dom.hudScore.textContent = `${state.xp} XP`;
-      dom.hudStreak.textContent = `${state.streak}x`;
-
-      if (state.streak >= 3) {
-        dom.hudStreak.classList.add('streak-hot');
-      } else {
-        dom.hudStreak.classList.remove('streak-hot');
+    function updateCreditUI(flash = false) {
+      const formatted = String(state.credits).padStart(2, '0');
+      dom.creditCounterText.textContent = `CREDIT ${formatted}`;
+      dom.topCreditBanner.textContent = `CREDIT ${formatted} • AP CALC EDITION`;
+      if (dom.endCreditCount) {
+        dom.endCreditCount.textContent = formatted;
       }
 
-      const pct = (qNum / total) * 100;
-      dom.progressFill.style.width = `${pct}%`;
-      dom.progressTrack.setAttribute('aria-valuenow', String(qNum));
-    }
-
-    function renderQuestion() {
-      state.answered = false;
-      const q = QUESTIONS[state.currentIndex];
-
-      updateHud();
-
-      // Render sprites & arena info
-      drawSprite(dom.wizardCanvas, 'wizard');
-      drawSprite(dom.monsterCanvas, q.monsterSprite);
-      dom.monsterName.textContent = q.monsterName;
-      dom.topicBadge.textContent = q.topic;
-      dom.battleToast.textContent = "CHOOSE YOUR SPELL!";
-      dom.battleToast.style.color = "var(--accent-gold)";
-
-      // Render question text & formatted math
-      dom.questionPrompt.textContent = `${state.currentIndex + 1}. ${q.prompt}`;
-      dom.questionMath.innerHTML = q.mathHTML;
-
-      // Hide feedback & next button
-      dom.feedbackPanel.classList.remove('visible');
-      dom.nextBtn.style.display = 'none';
-
-      // Shuffle choices for replayability
-      const shuffledOptions = shuffleArray(q.options);
-      const letters = ['A', 'B', 'C', 'D'];
-
-      dom.optionsGrid.innerHTML = '';
-      shuffledOptions.forEach((opt, idx) => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'option-btn';
-        btn.dataset.correct = opt.isCorrect ? '1' : '0';
-        btn.innerHTML = `
-          <span class="option-key">${letters[idx]}</span>
-          <span class="option-text">${opt.text}</span>
-        `;
-        btn.addEventListener('click', () => handleAnswerSelect(btn, opt, q));
-        dom.optionsGrid.appendChild(btn);
-      });
-    }
-
-    function handleAnswerSelect(selectedBtn, selectedOpt, questionObj) {
-      if (state.answered) return;
-      state.answered = true;
-
-      const isCorrect = selectedOpt.isCorrect;
-      const allBtns = Array.from(dom.optionsGrid.querySelectorAll('.option-btn'));
-
-      // Lock all buttons and apply pixel feedback states
-      allBtns.forEach(btn => {
-        btn.disabled = true;
-        const btnIsCorrect = btn.dataset.correct === '1';
-        if (btnIsCorrect) {
-          btn.classList.add('correct');
-        } else if (btn === selectedBtn && !isCorrect) {
-          btn.classList.add('wrong');
-        } else {
-          btn.classList.add('dimmed');
-        }
-      });
-
-      // Update Score, XP, Streak, Audio, and Animations
-      if (isCorrect) {
-        state.score += 1;
-        state.streak += 1;
-        if (state.streak > state.maxStreak) state.maxStreak = state.streak;
-
-        const bonusXp = (state.streak - 1) * 25;
-        const gainedXp = 100 + bonusXp;
-        state.xp += gainedXp;
-
-        sfx.correct();
-        triggerBattleAnimation(true);
-
-        dom.battleToast.textContent = `CRITICAL HIT! +${gainedXp} XP`;
-        dom.battleToast.style.color = "var(--accent-green)";
-        dom.feedbackHeader.className = "feedback-header win";
-        dom.feedbackHeader.textContent = "★ SPELL SUCCESSFUL! MONSTER DEFEATED!";
-      } else {
-        state.streak = 0;
-        sfx.wrong();
-        triggerBattleAnimation(false);
-
-        dom.battleToast.textContent = "SPELL MISSED! -1 STREAK";
-        dom.battleToast.style.color = "var(--accent-red)";
-        dom.feedbackHeader.className = "feedback-header lose";
-        dom.feedbackHeader.textContent = "✖ SPELL FIZZLED! REVIEW THE THEOREM:";
+      if (flash) {
+        dom.creditCounterText.classList.remove('credit-flash');
+        void dom.creditCounterText.offsetWidth;
+        dom.creditCounterText.classList.add('credit-flash');
       }
 
-      updateHud();
+      if (state.credits > 0) {
+        dom.creditPromptText.textContent = 'READY PLAYER 1!';
+        dom.creditPromptText.classList.add('ready');
+        dom.startBtn.classList.remove('locked');
+        dom.startBtnLabel.textContent = '▶ PRESS START';
+        dom.insertCoinBtn.classList.remove('highlight-nudge');
 
-      // Record for end-of-game quest log
-      const correctOptionObj = questionObj.options.find(o => o.isCorrect);
-      state.history.push({
-        number: questionObj.id,
-        topic: questionObj.topic,
-        prompt: questionObj.prompt,
-        selectedHTML: selectedOpt.text,
-        correctHTML: correctOptionObj ? correctOptionObj.text : '',
-        isCorrect: isCorrect,
-        explanation: questionObj.explanation
-      });
-
-      // Show step-by-step explanation box
-      dom.feedbackBody.textContent = questionObj.explanation;
-      dom.feedbackPanel.classList.add('visible');
-
-      // Show Next / Finish button
-      const isLast = state.currentIndex === QUESTIONS.length - 1;
-      dom.nextBtnLabel.textContent = isLast ? "FINISH QUEST ★" : "NEXT QUEST ->";
-      dom.nextBtn.style.display = 'inline-flex';
-    }
-
-    function handleNextStep() {
-      sfx.blip();
-      if (state.currentIndex < QUESTIONS.length - 1) {
-        state.currentIndex += 1;
-        renderQuestion();
+        dom.playAgainBtn.classList.remove('locked');
+        dom.playAgainBtnLabel.textContent = '↻ PLAY AGAIN (1 COIN)';
       } else {
-        renderResultsScreen();
+        dom.creditPromptText.textContent = 'INSERT COIN TO PLAY!';
+        dom.creditPromptText.classList.remove('ready');
+        dom.startBtn.classList.add('locked');
+        dom.startBtnLabel.textContent = '🪙 INSERT COIN FIRST';
+
+        dom.playAgainBtn.classList.add('locked');
+        dom.playAgainBtnLabel.textContent = '🪙 INSERT COIN TO REPLAY';
       }
     }
 
-    function getRankDetails(score) {
-      if (score === 10) {
-        return {
-          rank: "RANK: CALCULUS GRANDMASTER",
-          flavor: "Flawless victory! Newton and Leibniz would be proud of your mastery."
-        };
-      } else if (score >= 8) {
-        return {
-          rank: "RANK: DERIVATIVE PALADIN",
-          flavor: "Heroic work! Your command of limits and rates of change is formidable."
-        };
-      } else if (score >= 5) {
-        return {
-          rank: "RANK: INTEGRAL RANGER",
-          flavor: "Solid questing! Review the missed scrolls below to reach Grandmaster."
-        };
-      } else {
-        return {
-          rank: "RANK: LIMIT APPRENTICE",
-          flavor: "Every mage starts here! Inspect the step-by-step solutions and try again."
-        };
+    function insertCoin(animateSlot = true) {
+      if (state.credits < 9) {
+        state.credits += 1;
+      }
+      updateCreditUI(true);
+      sfx.coin();
+
+      if (animateSlot && dom.coinSlitPlate) {
+        const coinEl = document.createElement('span');
+        coinEl.className = 'pixel-coin-icon dropping-coin';
+        dom.coinSlitPlate.appendChild(coinEl);
+        setTimeout(() => coinEl.remove(), 380);
       }
     }
 
-    function renderResultsScreen() {
-      sfx.victory();
-      showScreen(dom.resultsScreen);
-
-      const total = QUESTIONS.length;
-      const pct = Math.round((state.score / total) * 100);
-      const rankInfo = getRankDetails(state.score);
-
-      dom.rankBadge.textContent = rankInfo.rank;
-      dom.finalScoreText.textContent = `${state.score} / ${total} (${pct}%)`;
-      dom.finalFlavorText.textContent = rankInfo.flavor;
-      dom.finalXp.textContent = `${state.xp} XP`;
-      dom.finalMaxStreak.textContent = `${state.maxStreak}x`;
-      dom.finalAccuracy.textContent = `${pct}%`;
-
-      // Populate Quest Log Review
-      dom.reviewList.innerHTML = '';
-      state.history.forEach(item => {
-        const div = document.createElement('div');
-        div.className = `review-item ${item.isCorrect ? '' : 'missed'}`;
-        div.innerHTML = `
-          <div class="review-item-top">
-            <span>Q${item.number} • ${item.topic}</span>
-            <span class="review-status-tag ${item.isCorrect ? 'ok' : 'no'}">
-              ${item.isCorrect ? '✓ CLEARED' : '✗ MISSED'}
-            </span>
-          </div>
-          <div class="review-q-text">${item.prompt}</div>
-          <div class="review-ans-detail">
-            ${item.isCorrect
-              ? `Answer: ${item.correctHTML}`
-              : `Your Answer: ${item.selectedHTML} &nbsp;|&nbsp; Correct: ${item.correctHTML}`
-            }
-          </div>
-        `;
-        dom.reviewList.appendChild(div);
-      });
+    function syncPlayerNameFromInput() {
+      const name = sanitizePlayerName(dom.startPlayerNameInput.value);
+      state.playerName = name;
+      persistPlayerName(name);
+      if (dom.previewWizardTag) {
+        dom.previewWizardTag.textContent = name;
+      }
+      if (dom.hudPlayerTag) {
+        dom.hudPlayerTag.textContent = `${name} LV.1`;
+      }
     }
 
     /* ========================================================================
@@ -2460,6 +2328,9 @@
       // Require at least 1 inserted arcade coin
       if (state.credits <= 0) {
         sfx.lockedBuzz();
+        dom.creditPromptText.textContent = 'INSERT COIN FIRST!';
+        dom.creditPromptText.classList.remove('ready');
+        dom.insertCoinBtn.classList.add('highlight-nudge');
         const targetBtn = dom.startScreen.classList.contains('active') ? dom.startBtn : dom.playAgainBtn;
         targetBtn.classList.remove('anim-shake-locked');
         void targetBtn.offsetWidth;
@@ -2469,7 +2340,7 @@
 
       // Consume 1 coin & capture active player name
       state.credits -= 1;
-      updateCreditUI();
+      updateCreditUI(false);
       syncPlayerNameFromInput();
 
       state.currentIndex = 0;
@@ -2820,8 +2691,9 @@
       // Live update preview sprite tag as player types their name
       dom.startPlayerNameInput.addEventListener('input', syncPlayerNameFromInput);
 
-      // Insert Coin Buttons (Start & End Screens)
+      // Insert Coin Buttons & Coin Slit (Start & End Screens)
       dom.insertCoinBtn.addEventListener('click', () => insertCoin(true));
+      dom.coinSlitPlate.addEventListener('click', () => insertCoin(true));
       dom.endInsertCoinBtn.addEventListener('click', () => insertCoin(false));
 
       // Keyboard shortcut: Press 'C' (when not typing in an input) to insert a coin
