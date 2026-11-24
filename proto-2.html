@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -753,4 +752,2110 @@
     }
 
     .hud-value {
-    
+      font-family: var(--font-pixel);
+      font-size: clamp(0.66rem, 2.2vw, 0.85rem);
+      color: var(--accent-gold);
+    }
+
+    .hud-value.streak-hot {
+      color: var(--accent-pink);
+      text-shadow: 0 0 8px rgba(247, 37, 133, 0.7);
+    }
+
+    /* Pixel Progress Bar */
+    .progress-track {
+      width: 100%;
+      height: 16px;
+      background: var(--bg-panel-dark);
+      border: 3px solid var(--border-dark);
+      padding: 2px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 10%;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--accent-green) 0px,
+        var(--accent-green) 10px,
+        #05b384 10px,
+        #05b384 14px
+      );
+      transition: width 0.3s steps(6);
+    }
+
+    /* Battle Arena (Sprites + HP Bars + Encounter Banner) */
+    .battle-arena {
+      background: linear-gradient(180deg, #16102e 0%, #241b47 72%, #192b28 72%, #111f1c 100%);
+      border: 4px solid var(--border-dark);
+      box-shadow: inset 0 0 0 3px #3d3175;
+      padding: clamp(8px, 2.2vw, 12px) clamp(10px, 2.5vw, 16px);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+      min-height: 106px;
+    }
+
+    .combatant {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 2;
+      flex-shrink: 0;
+    }
+
+    .hp-bar-wrap {
+      width: clamp(54px, 14vw, 74px);
+      height: 8px;
+      background: #090612;
+      border: 2px solid var(--border-light);
+      margin-bottom: 4px;
+      padding: 1px;
+    }
+
+    .hp-bar-fill {
+      height: 100%;
+      width: 100%;
+      background: var(--accent-green);
+      transition: width 0.25s steps(4), background-color 0.25s;
+    }
+
+    .hp-bar-fill.enemy {
+      background: var(--accent-pink);
+    }
+
+    .combatant-tag {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.44rem, 1.3vw, 0.52rem);
+      background: rgba(9, 6, 18, 0.88);
+      padding: 4px 5px;
+      border: 2px solid var(--border-light);
+      margin-top: 5px;
+      color: var(--text-main);
+      text-align: center;
+      max-width: 108px;
+      line-height: 1.25;
+    }
+
+    .arena-center-status {
+      text-align: center;
+      z-index: 2;
+      padding: 0 4px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .topic-tag {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.48rem, 1.5vw, 0.6rem);
+      color: var(--accent-cyan);
+      background: rgba(9, 6, 18, 0.85);
+      border: 2px solid var(--accent-cyan);
+      padding: 4px 6px;
+      display: inline-block;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .battle-toast {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.5rem, 1.6vw, 0.65rem);
+      min-height: 1.2em;
+      color: var(--accent-gold);
+      text-shadow: 2px 2px 0 #000;
+      line-height: 1.35;
+    }
+
+    /* Canvas Pixel Sprites */
+    canvas.pixel-sprite {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      width: clamp(46px, 12vw, 64px);
+      height: clamp(46px, 12vw, 64px);
+    }
+
+    /* Sprite Animations */
+    @keyframes wizardAttack {
+      0% { transform: translateX(0); }
+      35% { transform: translateX(36px) scale(1.1); }
+      65% { transform: translateX(36px) scale(1.1); }
+      100% { transform: translateX(0); }
+    }
+
+    @keyframes monsterHit {
+      0%, 100% { transform: translateX(0); filter: brightness(1); }
+      20% { transform: translateX(10px); filter: brightness(3) sepia(1) hue-rotate(-50deg); }
+      40% { transform: translateX(-10px); filter: brightness(0.4); }
+      60% { transform: translateX(8px); filter: brightness(2.5); }
+      80% { transform: translateX(-6px); }
+    }
+
+    @keyframes wizardHurt {
+      0%, 100% { transform: translateX(0); filter: brightness(1); }
+      25% { transform: translateX(-10px); filter: brightness(2.5) saturate(4); }
+      50% { transform: translateX(10px); opacity: 0.4; }
+      75% { transform: translateX(-8px); opacity: 1; }
+    }
+
+    @keyframes monsterAttack {
+      0% { transform: translateX(0); }
+      40% { transform: translateX(-34px) scale(1.12); }
+      100% { transform: translateX(0); }
+    }
+
+    .anim-wizard-attack { animation: wizardAttack 0.45s steps(5); }
+    .anim-monster-hit { animation: monsterHit 0.45s steps(5); }
+    .anim-wizard-hurt { animation: wizardHurt 0.45s steps(5); }
+    .anim-monster-attack { animation: monsterAttack 0.45s steps(5); }
+
+    /* ==========================================================================
+       6. QUESTION BOX & MATH TYPOGRAPHY
+       ========================================================================== */
+    .question-card {
+      background: var(--bg-panel-dark);
+      border: 4px solid var(--border-dark);
+      box-shadow: inset 0 0 0 3px var(--border-light);
+      padding: clamp(12px, 2.8vw, 16px) clamp(12px, 3vw, 18px);
+      margin-bottom: 12px;
+    }
+
+    .question-prompt {
+      font-size: clamp(1.25rem, 3.6vw, 1.55rem);
+      line-height: 1.3;
+      color: var(--text-main);
+      margin-bottom: 10px;
+    }
+
+    .math-display {
+      background: rgba(41, 32, 78, 0.75);
+      border-left: 4px solid var(--accent-gold);
+      padding: clamp(8px, 2vw, 10px) clamp(10px, 2.5vw, 14px);
+      font-size: clamp(1.35rem, 4vw, 1.75rem);
+      color: var(--accent-gold);
+      letter-spacing: 0.4px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      overflow-x: auto;
+    }
+
+    /* Crisp HTML/CSS Math Helpers (Limits, Fractions, Integrals) */
+    .math-var {
+      font-style: italic;
+      font-family: 'Georgia', serif;
+    }
+
+    .lim-block {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      vertical-align: middle;
+      line-height: 1;
+      margin-right: 4px;
+    }
+
+    .lim-word {
+      font-size: 1.45rem;
+    }
+
+    .lim-sub {
+      font-size: 1.05rem;
+      color: var(--accent-cyan);
+      margin-top: 2px;
+    }
+
+    .frac {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      vertical-align: middle;
+      margin: 0 4px;
+      font-size: 1.45rem;
+      line-height: 1.1;
+    }
+
+    .frac-num {
+      border-bottom: 2px solid currentColor;
+      padding: 0 4px 2px;
+    }
+
+    .frac-den {
+      padding: 2px 4px 0;
+    }
+
+    .int-block {
+      display: inline-flex;
+      align-items: center;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+
+    .int-symbol {
+      font-size: 2.1rem;
+      line-height: 1;
+      font-family: 'Georgia', serif;
+    }
+
+    .int-bounds {
+      display: inline-flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-size: 1rem;
+      line-height: 1;
+      margin-left: 2px;
+      height: 1.9rem;
+      color: var(--accent-cyan);
+    }
+
+    sup {
+      font-size: 0.68em;
+      line-height: 0;
+    }
+
+    sub {
+      font-size: 0.68em;
+      line-height: 0;
+    }
+
+    /* ==========================================================================
+       7. MULTIPLE CHOICE OPTIONS GRID
+       ========================================================================== */
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: clamp(8px, 2vw, 12px);
+      margin-bottom: 12px;
+    }
+
+    .option-btn {
+      background: var(--bg-card);
+      border: 4px solid var(--border-dark);
+      box-shadow:
+        inset -3px -3px 0 rgba(0, 0, 0, 0.45),
+        inset 3px 3px 0 rgba(255, 255, 255, 0.12);
+      padding: clamp(10px, 2.2vw, 12px) clamp(10px, 2.4vw, 14px);
+      color: var(--text-main);
+      font-family: var(--font-readable);
+      font-size: clamp(1.3rem, 3.5vw, 1.5rem);
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: transform 0.08s, background-color 0.12s;
+      min-height: 54px;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background: #372b66;
+      border-color: var(--accent-gold);
+    }
+
+    .option-btn:active:not(:disabled) {
+      transform: translateY(3px);
+    }
+
+    .option-btn:disabled {
+      cursor: default;
+    }
+
+    .option-key {
+      font-family: var(--font-pixel);
+      font-size: 0.75rem;
+      background: var(--bg-panel-dark);
+      color: var(--accent-cyan);
+      border: 2px solid var(--border-light);
+      padding: 6px 8px;
+      flex-shrink: 0;
+    }
+
+    .option-text {
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    /* Answer States */
+    .option-btn.correct {
+      background: var(--accent-green);
+      color: #04241b;
+      box-shadow:
+        inset -3px -3px 0 var(--accent-green-dark),
+        inset 3px 3px 0 #89ffe0;
+    }
+
+    .option-btn.correct .option-key {
+      background: #04241b;
+      color: var(--accent-green);
+      border-color: #04241b;
+    }
+
+    .option-btn.wrong {
+      background: var(--accent-red);
+      color: #fff;
+      box-shadow:
+        inset -3px -3px 0 var(--accent-red-dark),
+        inset 3px 3px 0 #ff9eb5;
+    }
+
+    .option-btn.wrong .option-key {
+      background: #380713;
+      color: #ff9eb5;
+      border-color: #380713;
+    }
+
+    .option-btn.dimmed {
+      opacity: 0.55;
+    }
+
+    /* ==========================================================================
+       8. EXPLANATION SCROLL & NEXT ACTION
+       ========================================================================== */
+    .feedback-panel {
+      display: none;
+      background: #17122e;
+      border: 4px solid var(--border-dark);
+      box-shadow: inset 0 0 0 3px var(--accent-gold);
+      padding: clamp(10px, 2.5vw, 14px) clamp(12px, 2.8vw, 16px);
+      margin-bottom: 12px;
+      animation: pixelFadeIn 0.2s steps(3);
+    }
+
+    .feedback-panel.visible {
+      display: block;
+    }
+
+    .feedback-header {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.6rem, 2vw, 0.75rem);
+      line-height: 1.35;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .feedback-header.win {
+      color: var(--accent-green);
+    }
+
+    .feedback-header.lose {
+      color: var(--accent-red);
+    }
+
+    .feedback-body {
+      font-size: clamp(1.2rem, 3.2vw, 1.38rem);
+      line-height: 1.35;
+      color: var(--text-main);
+    }
+
+    .next-row {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    /* ==========================================================================
+       9. VICTORY / RESULTS SCREEN
+       ========================================================================== */
+    .results-header {
+      text-align: center;
+      padding: 6px 0 12px;
+    }
+
+    .rank-banner {
+      display: inline-block;
+      font-family: var(--font-pixel);
+      font-size: clamp(0.56rem, 1.9vw, 0.72rem);
+      background: var(--accent-pink);
+      color: #fff;
+      padding: 8px 12px;
+      border: 3px solid var(--border-dark);
+      box-shadow: 3px 3px 0 var(--border-dark);
+      margin-bottom: 10px;
+      line-height: 1.35;
+    }
+
+    .final-score-big {
+      font-family: var(--font-pixel);
+      font-size: clamp(1.15rem, 4vw, 2rem);
+      color: var(--accent-gold);
+      text-shadow: 3px 3px 0 var(--border-dark);
+      margin-bottom: 8px;
+    }
+
+    .stats-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(6px, 2vw, 10px);
+      margin-bottom: 14px;
+    }
+
+    .review-section-title {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.56rem, 1.8vw, 0.72rem);
+      color: var(--accent-cyan);
+      margin: 14px 0 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .review-list {
+      max-height: 230px;
+      overflow-y: auto;
+      background: var(--bg-panel-dark);
+      border: 4px solid var(--border-dark);
+      padding: 10px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Custom Retro Scrollbar */
+    .review-list::-webkit-scrollbar {
+      width: 10px;
+    }
+    .review-list::-webkit-scrollbar-track {
+      background: var(--bg-panel-dark);
+    }
+    .review-list::-webkit-scrollbar-thumb {
+      background: var(--border-light);
+      border: 2px solid var(--border-dark);
+    }
+
+    .review-item {
+      background: var(--bg-card);
+      border-left: 5px solid var(--accent-green);
+      padding: 10px 12px;
+      font-size: 1.25rem;
+    }
+
+    .review-item.missed {
+      border-left-color: var(--accent-red);
+    }
+
+    .review-item-top {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-pixel);
+      font-size: 0.58rem;
+      margin-bottom: 6px;
+      color: var(--text-muted);
+    }
+
+    .review-status-tag.ok { color: var(--accent-green); }
+    .review-status-tag.no { color: var(--accent-red); }
+
+    .review-q-text {
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .review-ans-detail {
+      font-size: 1.18rem;
+      color: var(--accent-gold);
+    }
+
+    .results-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* ==========================================================================
+       10. RESPONSIVE ADJUSTMENTS (MOBILE & TABLET)
+       ========================================================================== */
+    @media (max-width: 640px) {
+      .options-grid {
+        grid-template-columns: 1fr;
+      }
+      .next-row .pixel-btn,
+      .results-actions .pixel-btn {
+        width: 100%;
+      }
+      .hs-date {
+        display: none;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .utility-bar {
+        justify-content: center;
+      }
+      .combatant-tag {
+        max-width: 82px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Retro CRT Scanlines Overlay -->
+  <div id="crtOverlay" class="crt-overlay"></div>
+
+  <main class="game-shell" role="main">
+    <!-- Top Utility Bar -->
+    <header class="utility-bar">
+      <div class="arcade-badge">
+        <span class="blink-dot"></span>
+        <span id="topCreditBanner">CREDIT 00 • AP CALC EDITION</span>
+      </div>
+      <div class="utility-controls">
+        <button id="crtToggleBtn" class="pixel-btn-mini" type="button" aria-label="Toggle CRT scanlines">CRT: ON</button>
+        <button id="soundToggleBtn" class="pixel-btn-mini" type="button" aria-label="Toggle 8-bit sound">SFX: ON</button>
+      </div>
+    </header>
+
+    <!-- ======================================================================
+         SCREEN 1: START SCREEN
+         ====================================================================== -->
+    <section id="startScreen" class="screen active" aria-labelledby="mainTitle">
+      <div class="start-hero">
+        <h1 id="mainTitle" class="game-title">CALCULUS QUEST:<br>8-BIT EDITION</h1>
+        <p class="game-subtitle">SLAY THE DERIVATIVE DUNGEON</p>
+
+        <div class="stage-preview-box">
+          <div class="sprite-duo">
+            <div class="combatant">
+              <canvas id="previewWizardCanvas" class="pixel-sprite" width="16" height="16"></canvas>
+              <span id="previewWizardTag" class="combatant-tag">SCHOLAR</span>
+            </div>
+            <span class="vs-badge">VS</span>
+            <div class="combatant">
+              <canvas id="previewMonsterCanvas" class="pixel-sprite" width="16" height="16"></canvas>
+              <span class="combatant-tag">CALC BOSSES</span>
+            </div>
+          </div>
+
+          <p class="quest-brief">
+            Defeat <strong>10 Calculus Monsters</strong>! Enter your name, insert a coin, and solve limits, derivatives, and integrals for up to <strong>1000 PTS</strong>.
+          </p>
+
+          <div class="topic-pills">
+            <span class="topic-pill">LIMITS</span>
+            <span class="topic-pill">POWER &amp; CHAIN RULE</span>
+            <span class="topic-pill">EXTREMA</span>
+            <span class="topic-pill">INTEGRALS</span>
+          </div>
+        </div>
+
+        <!-- Arcade Cabinet Name Entry & Interactive Insert Coin Slot -->
+        <div class="arcade-cabinet-controls">
+          <div class="cabinet-row">
+            <div class="name-entry-group">
+              <label for="startPlayerNameInput" class="cabinet-label">1. ENTER MAGE NAME</label>
+              <input
+                id="startPlayerNameInput"
+                class="start-name-input"
+                type="text"
+                maxlength="8"
+                placeholder="SCHOLAR"
+                aria-label="Enter your mage name (up to 8 characters)"
+                autocomplete="off"
+              />
+            </div>
+
+            <div class="coin-slot-group">
+              <span class="cabinet-label">2. ARCADE COIN DOOR</span>
+              <div class="coin-slot-housing">
+                <button id="insertCoinBtn" class="insert-coin-btn" type="button" aria-label="Insert Coin">
+                  <span class="pixel-coin-icon" aria-hidden="true"></span>
+                  <span>INSERT COIN</span>
+                </button>
+                <div id="coinSlitPlate" class="coin-slit-plate" title="25¢ Arcade Coin Slot">
+                  <div class="coin-slit-hole"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="credit-led-bar">
+            <span id="creditPromptText" class="credit-status-text">INSERT COIN TO PLAY!</span>
+            <span id="creditCounterText" class="credit-counter">CREDIT 00</span>
+          </div>
+        </div>
+
+        <button id="startBtn" class="pixel-btn locked" type="button">
+          <span id="startBtnLabel">🪙 INSERT COIN FIRST</span>
+        </button>
+
+        <!-- Start Screen Hall of Fame Leaderboard -->
+        <div class="highscore-panel" aria-label="Hall of Fame High Scores">
+          <div class="highscore-header">
+            <span class="highscore-title">★ HALL OF FAME (TOP 5)</span>
+            <span id="startPersonalBest" class="personal-best-pill">BEST: 900 PTS</span>
+          </div>
+          <table class="highscore-table">
+            <thead>
+              <tr>
+                <th>RNK</th>
+                <th>MAGE</th>
+                <th style="text-align:center;">ACC</th>
+                <th style="text-align:right;">SCORE</th>
+                <th class="hs-date" style="text-align:right;">DATE</th>
+              </tr>
+            </thead>
+            <tbody id="startHighScoreBody"></tbody>
+          </table>
+          <div class="highscore-footer">
+            <span style="color: var(--text-muted); font-size: 1.05rem;">SAVED LOCALLY ON DEVICE</span>
+            <div id="resetControlsWrap">
+              <button id="resetScoresBtn" class="pixel-btn-mini danger" type="button">RESET SCORES</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SCREEN 2: QUIZ BATTLE SCREEN
+         ====================================================================== -->
+    <section id="quizScreen" class="screen" aria-live="polite">
+      <!-- Top HUD -->
+      <div class="hud-grid">
+        <div class="hud-box">
+          <span class="hud-label">STAGE</span>
+          <span id="hudStage" class="hud-value">1 / 10</span>
+        </div>
+        <div class="hud-box">
+          <span class="hud-label">SCORE</span>
+          <span id="hudScore" class="hud-value">0 PTS</span>
+        </div>
+        <div class="hud-box">
+          <span class="hud-label">STREAK</span>
+          <span id="hudStreak" class="hud-value">0x</span>
+        </div>
+      </div>
+
+      <!-- Pixel Progress Bar -->
+      <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="10" aria-valuenow="1" id="progressTrack">
+        <div id="progressFill" class="progress-fill"></div>
+      </div>
+
+      <!-- Pixel Battle Arena -->
+      <div class="battle-arena">
+        <div class="combatant">
+          <div class="hp-bar-wrap" title="Scholar HP">
+            <div id="wizardHpFill" class="hp-bar-fill"></div>
+          </div>
+          <canvas id="wizardCanvas" class="pixel-sprite" width="16" height="16"></canvas>
+          <span id="hudPlayerTag" class="combatant-tag">SCHOLAR LV.1</span>
+        </div>
+
+        <div class="arena-center-status">
+          <div id="topicBadge" class="topic-tag">TOPIC</div>
+          <div id="battleToast" class="battle-toast">CHOOSE YOUR SPELL!</div>
+        </div>
+
+        <div class="combatant">
+          <div class="hp-bar-wrap" title="Monster HP">
+            <div id="monsterHpFill" class="hp-bar-fill enemy"></div>
+          </div>
+          <canvas id="monsterCanvas" class="pixel-sprite" width="16" height="16"></canvas>
+          <span id="monsterName" class="combatant-tag">LIMIT SLIME</span>
+        </div>
+      </div>
+
+      <!-- Question Card -->
+      <article class="question-card">
+        <div id="questionPrompt" class="question-prompt">Loading quest...</div>
+        <div id="questionMath" class="math-display"></div>
+      </article>
+
+      <!-- 4 Multiple Choice Buttons -->
+      <div id="optionsGrid" class="options-grid"></div>
+
+      <!-- Step-by-Step Scroll Explanation -->
+      <div id="feedbackPanel" class="feedback-panel">
+        <div id="feedbackHeader" class="feedback-header"></div>
+        <div id="feedbackBody" class="feedback-body"></div>
+      </div>
+
+      <!-- Next Button Row -->
+      <div class="next-row">
+        <button id="nextBtn" class="pixel-btn cyan" type="button" style="display: none;">
+          <span id="nextBtnLabel">NEXT QUEST -&gt;</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SCREEN 3: VICTORY / RESULTS SCREEN
+         ====================================================================== -->
+    <section id="resultsScreen" class="screen">
+      <div class="results-header">
+        <div id="rankBadge" class="rank-banner">RANK: CALCULUS GRANDMASTER</div>
+        <h2 id="finalScoreText" class="final-score-big">1000 PTS (10/10)</h2>
+        <p id="finalFlavorText" class="quest-brief" style="margin: 0 auto;">Legendary! You mastered every theorem in the dungeon.</p>
+      </div>
+
+      <div class="stats-summary-grid">
+        <div class="hud-box">
+          <span class="hud-label">FINAL SCORE</span>
+          <span id="finalXp" class="hud-value">1000 PTS</span>
+        </div>
+        <div class="hud-box">
+          <span class="hud-label">MAX STREAK</span>
+          <span id="finalMaxStreak" class="hud-value">10x</span>
+        </div>
+        <div class="hud-box">
+          <span class="hud-label">ACCURACY</span>
+          <span id="finalAccuracy" class="hud-value">10 / 10</span>
+        </div>
+      </div>
+
+      <!-- New High Score Entry Box on End Screen (Allows quick name edit if desired) -->
+      <div id="newRecordBox" class="new-record-box" style="display: none;">
+        <div id="newRecordTitle" class="new-record-title">★ SCORE RECORDED IN HALL OF FAME! ★</div>
+        <p class="new-record-sub">Recorded under <strong id="recordedNameDisplay" style="color:var(--accent-gold);">SCHOLAR</strong>! Want to update your Hall of Fame tag?</p>
+        <form id="saveScoreForm" class="initials-form">
+          <input
+            id="playerInitialsInput"
+            class="initials-input"
+            type="text"
+            minlength="1"
+            maxlength="8"
+            placeholder="SCHOLAR"
+            aria-label="Update 1 to 8 character initials"
+            autocomplete="off"
+          />
+          <button id="saveScoreBtn" class="pixel-btn green" type="submit">
+            <span>UPDATE NAME</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- End Screen Hall of Fame Leaderboard -->
+      <div class="highscore-panel" style="margin-bottom: 14px;" aria-label="Updated Hall of Fame">
+        <div class="highscore-header">
+          <span class="highscore-title">★ HALL OF FAME (TOP 5)</span>
+          <span id="endPersonalBest" class="personal-best-pill">BEST: 900 PTS</span>
+        </div>
+        <table class="highscore-table">
+          <thead>
+            <tr>
+              <th>RNK</th>
+              <th>MAGE</th>
+              <th style="text-align:center;">ACC</th>
+              <th style="text-align:right;">SCORE</th>
+              <th class="hs-date" style="text-align:right;">DATE</th>
+            </tr>
+          </thead>
+          <tbody id="endHighScoreBody"></tbody>
+        </table>
+      </div>
+
+      <div class="review-section-title">
+        <span>QUEST LOG &amp; SOLUTIONS</span>
+        <span id="reviewFilterHint">SCROLL TO INSPECT</span>
+      </div>
+
+      <div id="reviewList" class="review-list"></div>
+
+      <div class="results-actions">
+        <button id="endInsertCoinBtn" class="insert-coin-btn" type="button" style="min-height:48px; padding:12px 16px;">
+          <span class="pixel-coin-icon" aria-hidden="true"></span>
+          <span>INSERT COIN (<span id="endCreditCount">00</span>)</span>
+        </button>
+        <button id="playAgainBtn" class="pixel-btn" type="button">
+          <span id="playAgainBtnLabel">↻ PLAY AGAIN (1 COIN)</span>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    /* ========================================================================
+       1. WEB AUDIO API 8-BIT SYNTHESIZER (NO EXTERNAL SOUND FILES)
+       ======================================================================== */
+    class RetroAudio {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) {
+            this.ctx = new AudioCtx();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playTone(freq, type, duration, delay = 0, gainVal = 0.12) {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime + delay;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+
+        gain.gain.setValueAtTime(gainVal, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + duration);
+      }
+
+      blip() {
+        this.playTone(520, 'square', 0.07, 0, 0.09);
+      }
+
+      coin() {
+        // Classic 8-bit arcade coin double chime: B5 (987.77 Hz) -> E6 (1318.51 Hz)
+        this.playTone(987.77, 'square', 0.08, 0, 0.14);
+        this.playTone(1318.51, 'square', 0.28, 0.075, 0.14);
+      }
+
+      lockedBuzz() {
+        this.playTone(150, 'square', 0.1, 0, 0.1);
+      }
+
+      startFanfare() {
+        const notes = [330, 392, 659, 523, 587, 784];
+        notes.forEach((n, idx) => {
+          this.playTone(n, 'square', 0.11, idx * 0.08, 0.11);
+        });
+      }
+
+      correct() {
+        // Ascending 8-bit coin/spell chime
+        this.playTone(587.33, 'square', 0.09, 0, 0.12);     // D5
+        this.playTone(880.00, 'square', 0.18, 0.08, 0.13);  // A5
+        this.playTone(1174.66, 'triangle', 0.22, 0.15, 0.12); // D6
+      }
+
+      wrong() {
+        // Descending retro buzz
+        this.playTone(220, 'sawtooth', 0.14, 0, 0.12);
+        this.playTone(164.81, 'sawtooth', 0.24, 0.12, 0.13);
+      }
+
+      victory() {
+        const melody = [
+          { f: 523.25, d: 0.11, t: 0.00 }, // C5
+          { f: 523.25, d: 0.11, t: 0.12 }, // C5
+          { f: 523.25, d: 0.11, t: 0.24 }, // C5
+          { f: 659.25, d: 0.24, t: 0.36 }, // E5
+          { f: 587.33, d: 0.16, t: 0.62 }, // D5
+          { f: 659.25, d: 0.16, t: 0.80 }, // E5
+          { f: 783.99, d: 0.42, t: 0.98 }  // G5
+        ];
+        melody.forEach(m => this.playTone(m.f, 'square', m.d, m.t, 0.12));
+      }
+    }
+
+    const sfx = new RetroAudio();
+
+    /* ========================================================================
+       4. PERSISTENT LOCAL HIGH SCORE MANAGER (localStorage)
+       ======================================================================== */
+    const STORAGE_KEY = 'calculus_quest_highscores_v1';
+    const PLAYER_NAME_KEY = 'calculus_quest_player_name_v1';
+    const DEFAULT_HIGHSCORES = [
+      { id: 'def-1', name: 'NEWTON', score: 900, accuracy: '9/10', rank: 'DERIVATIVE PALADIN', date: 'CLASSIC' },
+      { id: 'def-2', name: 'LEIBNIZ', score: 800, accuracy: '8/10', rank: 'DERIVATIVE PALADIN', date: 'CLASSIC' },
+      { id: 'def-3', name: 'EULER', score: 700, accuracy: '7/10', rank: 'INTEGRAL RANGER', date: 'CLASSIC' }
+    ];
+
+    function formatShortDate(dateObj = new Date()) {
+      const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+      return `${months[dateObj.getMonth()]} ${String(dateObj.getDate()).padStart(2, '0')}`;
+    }
+
+    function loadHighScores() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_HIGHSCORES));
+          return DEFAULT_HIGHSCORES.slice();
+        }
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed) || parsed.length === 0) {
+          return [];
+        }
+        return parsed
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 5);
+      } catch (err) {
+        return DEFAULT_HIGHSCORES.slice();
+      }
+    }
+
+    function saveHighScoresList(scores) {
+      try {
+        const trimmed = scores.sort((a, b) => b.score - a.score).slice(0, 5);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
+      } catch (err) {
+        // Ignore storage quota errors in restricted sandboxes
+      }
+    }
+
+    function resetHighScoresToDefault() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_HIGHSCORES));
+      } catch (err) {
+        // Ignore
+      }
+    }
+
+    function qualifiesForTop5(scoreVal) {
+      if (scoreVal <= 0) return false;
+      const list = loadHighScores();
+      if (list.length < 5) return true;
+      const lowestTopScore = list[list.length - 1].score;
+      return scoreVal > lowestTopScore;
+    }
+
+    function sanitizePlayerName(raw) {
+      const cleaned = String(raw || '')
+        .trim()
+        .toUpperCase()
+        .replace(/[^A-Z0-9_-]/g, '')
+        .slice(0, 8);
+      return cleaned || 'SCHOLAR';
+    }
+
+    function loadSavedPlayerName() {
+      try {
+        return localStorage.getItem(PLAYER_NAME_KEY) || '';
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function persistPlayerName(name) {
+      try {
+        localStorage.setItem(PLAYER_NAME_KEY, name);
+      } catch (e) {
+        // Ignore storage errors
+      }
+    }
+
+    function renderHighScoreTable(tbodyEl, bestBadgeEl, highlightId = null) {
+      if (!tbodyEl) return;
+      const scores = loadHighScores();
+      const topScore = scores.length > 0 ? scores[0].score : 0;
+
+      if (bestBadgeEl) {
+        bestBadgeEl.textContent = `BEST: ${topScore} PTS`;
+      }
+
+      tbodyEl.innerHTML = '';
+      if (scores.length === 0) {
+        tbodyEl.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align:center; color: var(--text-muted); padding: 12px;">
+              NO RECORDS YET — BE THE FIRST MAGE!
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      const rankLabels = ['1ST', '2ND', '3RD', '4TH', '5TH'];
+      scores.forEach((entry, idx) => {
+        const tr = document.createElement('tr');
+        if (highlightId && entry.id === highlightId) {
+          tr.classList.add('highlight-row');
+        }
+        const rankClass = idx === 0 ? 'top-1' : idx === 1 ? 'top-2' : idx === 2 ? 'top-3' : '';
+        tr.innerHTML = `
+          <td class="hs-rank ${rankClass}">${rankLabels[idx] || `#${idx + 1}`}</td>
+          <td class="hs-name">${escapeHtml(entry.name)}</td>
+          <td class="hs-acc">${escapeHtml(entry.accuracy)}</td>
+          <td class="hs-score">${entry.score} PTS</td>
+          <td class="hs-date">${escapeHtml(entry.date || '')}</td>
+        `;
+        tbodyEl.appendChild(tr);
+      });
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    /* ========================================================================
+       5. APPLICATION STATE & DOM REFERENCES
+       ======================================================================== */
+    const state = {
+      credits: 0,
+      playerName: 'SCHOLAR',
+      currentIndex: 0,
+      score: 0,       // Correct answers out of 10
+      points: 0,      // Total score out of 1000 (100 pts per correct answer)
+      streak: 0,
+      maxStreak: 0,
+      wizardHp: 100,
+      answered: false,
+      savedRunId: null,
+      history: []     // Stores { number, topic, prompt, selectedHTML, correctHTML, isCorrect, explanation }
+    };
+
+    const dom = {
+      topCreditBanner: document.getElementById('topCreditBanner'),
+      crtOverlay: document.getElementById('crtOverlay'),
+      crtToggleBtn: document.getElementById('crtToggleBtn'),
+      soundToggleBtn: document.getElementById('soundToggleBtn'),
+
+      startScreen: document.getElementById('startScreen'),
+      quizScreen: document.getElementById('quizScreen'),
+      resultsScreen: document.getElementById('resultsScreen'),
+
+      previewWizardCanvas: document.getElementById('previewWizardCanvas'),
+      previewWizardTag: document.getElementById('previewWizardTag'),
+      previewMonsterCanvas: document.getElementById('previewMonsterCanvas'),
+      startPlayerNameInput: document.getElementById('startPlayerNameInput'),
+      insertCoinBtn: document.getElementById('insertCoinBtn'),
+      coinSlitPlate: document.getElementById('coinSlitPlate'),
+      creditPromptText: document.getElementById('creditPromptText'),
+      creditCounterText: document.getElementById('creditCounterText'),
+      startBtn: document.getElementById('startBtn'),
+      startBtnLabel: document.getElementById('startBtnLabel'),
+      startHighScoreBody: document.getElementById('startHighScoreBody'),
+      startPersonalBest: document.getElementById('startPersonalBest'),
+      resetControlsWrap: document.getElementById('resetControlsWrap'),
+
+      hudStage: document.getElementById('hudStage'),
+      hudScore: document.getElementById('hudScore'),
+      hudStreak: document.getElementById('hudStreak'),
+      progressTrack: document.getElementById('progressTrack'),
+      progressFill: document.getElementById('progressFill'),
+
+      wizardHpFill: document.getElementById('wizardHpFill'),
+      monsterHpFill: document.getElementById('monsterHpFill'),
+      wizardCanvas: document.getElementById('wizardCanvas'),
+      hudPlayerTag: document.getElementById('hudPlayerTag'),
+      monsterCanvas: document.getElementById('monsterCanvas'),
+      monsterName: document.getElementById('monsterName'),
+      topicBadge: document.getElementById('topicBadge'),
+      battleToast: document.getElementById('battleToast'),
+
+      questionPrompt: document.getElementById('questionPrompt'),
+      questionMath: document.getElementById('questionMath'),
+      optionsGrid: document.getElementById('optionsGrid'),
+
+      feedbackPanel: document.getElementById('feedbackPanel'),
+      feedbackHeader: document.getElementById('feedbackHeader'),
+      feedbackBody: document.getElementById('feedbackBody'),
+      nextBtn: document.getElementById('nextBtn'),
+      nextBtnLabel: document.getElementById('nextBtnLabel'),
+
+      rankBadge: document.getElementById('rankBadge'),
+      finalScoreText: document.getElementById('finalScoreText'),
+      finalFlavorText: document.getElementById('finalFlavorText'),
+      finalXp: document.getElementById('finalXp'),
+      finalMaxStreak: document.getElementById('finalMaxStreak'),
+      finalAccuracy: document.getElementById('finalAccuracy'),
+
+      newRecordBox: document.getElementById('newRecordBox'),
+      newRecordTitle: document.getElementById('newRecordTitle'),
+      recordedNameDisplay: document.getElementById('recordedNameDisplay'),
+      saveScoreForm: document.getElementById('saveScoreForm'),
+      playerInitialsInput: document.getElementById('playerInitialsInput'),
+      endHighScoreBody: document.getElementById('endHighScoreBody'),
+      endPersonalBest: document.getElementById('endPersonalBest'),
+
+      reviewList: document.getElementById('reviewList'),
+      endInsertCoinBtn: document.getElementById('endInsertCoinBtn'),
+      endCreditCount: document.getElementById('endCreditCount'),
+      playAgainBtn: document.getElementById('playAgainBtn'),
+      playAgainBtnLabel: document.getElementById('playAgainBtnLabel')
+    };
+
+    /* ========================================================================
+       6. HELPER UTILITIES & ARCADE COIN MECHANIC
+       ======================================================================== */
+    function updateCreditUI() {
+      const formatted = String(state.credits).padStart(2, '0');
+      dom.creditCounterText.textContent = `CREDIT ${formatted}`;
+      dom.topCreditBanner.textContent = `CREDIT ${formatted} • AP CALC EDITION`;
+      if (dom.endCreditCount) {
+        dom.endCreditCount.textContent = formatted;
+      }
+
+      if (state.credits > 0) {
+        dom.creditPromptText.textContent = 'READY PLAYER 1!';
+        dom.creditPromptText.classList.add('ready');
+        dom.startBtn.classList.remove('locked');
+        dom.startBtnLabel.textContent = '▶ PRESS START';
+
+        dom.playAgainBtn.classList.remove('locked');
+        dom.playAgainBtnLabel.textContent = '↻ PLAY AGAIN (1 COIN)';
+      } else {
+        dom.creditPromptText.textContent = 'INSERT COIN TO PLAY!';
+        dom.creditPromptText.classList.remove('ready');
+        dom.startBtn.classList.add('locked');
+        dom.startBtnLabel.textContent = '🪙 INSERT COIN FIRST';
+
+        dom.playAgainBtn.classList.add('locked');
+        dom.playAgainBtnLabel.textContent = '🪙 INSERT COIN TO REPLAY';
+      }
+    }
+
+    function insertCoin(animateSlot = true) {
+      if (state.credits < 9) {
+        state.credits += 1;
+      }
+      sfx.coin();
+      updateCreditUI();
+
+      if (animateSlot && dom.coinSlitPlate) {
+        const coinEl = document.createElement('span');
+        coinEl.className = 'pixel-coin-icon dropping-coin';
+        dom.coinSlitPlate.appendChild(coinEl);
+        setTimeout(() => coinEl.remove(), 380);
+      }
+    }
+
+    function syncPlayerNameFromInput() {
+      const name = sanitizePlayerName(dom.startPlayerNameInput.value);
+      state.playerName = name;
+      persistPlayerName(name);
+      if (dom.previewWizardTag) {
+        dom.previewWizardTag.textContent = name;
+      }
+      if (dom.hudPlayerTag) {
+        dom.hudPlayerTag.textContent = `${name} LV.1`;
+      }
+    }
+
+    /* ========================================================================
+       3. 10 HIGH SCHOOL CALCULUS QUESTIONS BANK
+       ======================================================================== */
+    const QUESTIONS = [
+      {
+        id: 1,
+        topic: "BASIC LIMITS",
+        monsterName: "LIMIT SLIME",
+        monsterSprite: "slime",
+        prompt: "Evaluate the limit using direct substitution:",
+        mathHTML: `
+          <span class="lim-block">
+            <span class="lim-word">lim</span>
+            <span class="lim-sub">x → 3</span>
+          </span>
+          <span>(2x<sup>2</sup> &minus; 5)</span>
+        `,
+        options: [
+          { text: "13", isCorrect: true },
+          { text: "7", isCorrect: false },
+          { text: "31", isCorrect: false },
+          { text: "12", isCorrect: false }
+        ],
+        explanation: "Since 2x² − 5 is a continuous polynomial, substitute x = 3 directly: 2(3)² − 5 = 2(9) − 5 = 18 − 5 = 13."
+      },
+      {
+        id: 2,
+        topic: "INDETERMINATE LIMITS",
+        monsterName: "ZERO-OVER-ZERO BAT",
+        monsterSprite: "golem",
+        prompt: "Simplify and evaluate the indeterminate limit:",
+        mathHTML: `
+          <span class="lim-block">
+            <span class="lim-word">lim</span>
+            <span class="lim-sub">x → 2</span>
+          </span>
+          <span class="frac">
+            <span class="frac-num">x<sup>2</sup> &minus; 4</span>
+            <span class="frac-den">x &minus; 2</span>
+          </span>
+        `,
+        options: [
+          { text: "4", isCorrect: true },
+          { text: "0", isCorrect: false },
+          { text: "2", isCorrect: false },
+          { text: "Does not exist", isCorrect: false }
+        ],
+        explanation: "Direct substitution gives 0/0. Factor the numerator as a difference of squares: (x − 2)(x + 2) / (x − 2). Cancel (x − 2) to get lim (x + 2) as x → 2, which equals 2 + 2 = 4."
+      },
+      {
+        id: 3,
+        topic: "POWER RULE",
+        monsterName: "POLYNOMIAL OGRE",
+        monsterSprite: "golem",
+        prompt: "Find the first derivative f '(x) of the polynomial:",
+        mathHTML: `<span>f(x) = 4x<sup>3</sup> &minus; 3x<sup>2</sup> + 7x &minus; 2</span>`,
+        options: [
+          { text: "12x<sup>2</sup> &minus; 6x + 7", isCorrect: true },
+          { text: "12x<sup>2</sup> &minus; 6x + 5", isCorrect: false },
+          { text: "4x<sup>2</sup> &minus; 3x + 7", isCorrect: false },
+          { text: "12x<sup>3</sup> &minus; 6x<sup>2</sup> + 7x", isCorrect: false }
+        ],
+        explanation: "Apply the Power Rule d/dx(xⁿ) = n·xⁿ⁻¹ term by term: 4(3x²) − 3(2x¹) + 7(1) − 0 = 12x² − 6x + 7."
+      },
+      {
+        id: 4,
+        topic: "CHAIN RULE",
+        monsterName: "CHAIN HYDRA",
+        monsterSprite: "dragon",
+        prompt: "Differentiate the composite function using the Chain Rule:",
+        mathHTML: `
+          <span class="frac">
+            <span class="frac-num">d</span>
+            <span class="frac-den">dx</span>
+          </span>
+          <span>(3x + 1)<sup>4</sup></span>
+        `,
+        options: [
+          { text: "12(3x + 1)<sup>3</sup>", isCorrect: true },
+          { text: "4(3x + 1)<sup>3</sup>", isCorrect: false },
+          { text: "12(3x)<sup>3</sup>", isCorrect: false },
+          { text: "3(3x + 1)<sup>4</sup>", isCorrect: false }
+        ],
+        explanation: "By the Chain Rule, take the derivative of the outer power 4(3x + 1)³ and multiply by the derivative of the inside function d/dx(3x + 1) = 3. Result: 4 · 3(3x + 1)³ = 12(3x + 1)³."
+      },
+      {
+        id: 5,
+        topic: "TRIG DERIVATIVES",
+        monsterName: "SINE SPECTER",
+        monsterSprite: "slime",
+        prompt: "Compute the derivative of the trigonometric function:",
+        mathHTML: `
+          <span class="frac">
+            <span class="frac-num">d</span>
+            <span class="frac-den">dx</span>
+          </span>
+          <span>[ sin(2x) ]</span>
+        `,
+        options: [
+          { text: "2 cos(2x)", isCorrect: true },
+          { text: "cos(2x)", isCorrect: false },
+          { text: "&minus;2 cos(2x)", isCorrect: false },
+          { text: "2 sin(2x)", isCorrect: false }
+        ],
+        explanation: "The derivative of sin(u) is cos(u)·u'. Here u = 2x and u' = 2, giving cos(2x) · 2 = 2 cos(2x)."
+      },
+      {
+        id: 6,
+        topic: "TANGENT LINE SLOPE",
+        monsterName: "SECANT KNIGHT",
+        monsterSprite: "golem",
+        prompt: "Find the slope of the tangent line to f(x) at x = 2:",
+        mathHTML: `<span>f(x) = x<sup>2</sup> + 3x &nbsp; at &nbsp; x = 2</span>`,
+        options: [
+          { text: "7", isCorrect: true },
+          { text: "10", isCorrect: false },
+          { text: "5", isCorrect: false },
+          { text: "4", isCorrect: false }
+        ],
+        explanation: "The slope of the tangent line is f '(2). First find f '(x) = 2x + 3. Then plug in x = 2: f '(2) = 2(2) + 3 = 7. (Note: 10 is the y-value f(2), not the slope!)"
+      },
+      {
+        id: 7,
+        topic: "CRITICAL POINTS",
+        monsterName: "VERTEX GOLEM",
+        monsterSprite: "golem",
+        prompt: "At what x-value does f(x) have a local minimum?",
+        mathHTML: `<span>f(x) = x<sup>2</sup> &minus; 6x + 5</span>`,
+        options: [
+          { text: "x = 3", isCorrect: true },
+          { text: "x = &minus;3", isCorrect: false },
+          { text: "x = 6", isCorrect: false },
+          { text: "x = &minus;4", isCorrect: false }
+        ],
+        explanation: "Set the first derivative equal to zero to find critical points: f '(x) = 2x − 6 = 0 ⇒ 2x = 6 ⇒ x = 3. Since f ''(x) = 2 > 0, x = 3 is a local minimum."
+      },
+      {
+        id: 8,
+        topic: "INDEFINITE INTEGRALS",
+        monsterName: "ANTIDERIVATIVE IMP",
+        monsterSprite: "slime",
+        prompt: "Evaluate the indefinite integral (antiderivative):",
+        mathHTML: `
+          <span class="int-block"><span class="int-symbol">&int;</span></span>
+          <span>(6x<sup>2</sup> + 2x) dx</span>
+        `,
+        options: [
+          { text: "2x<sup>3</sup> + x<sup>2</sup> + C", isCorrect: true },
+          { text: "12x + 2 + C", isCorrect: false },
+          { text: "6x<sup>3</sup> + 2x<sup>2</sup> + C", isCorrect: false },
+          { text: "3x<sup>3</sup> + x<sup>2</sup> + C", isCorrect: false }
+        ],
+        explanation: "Use the Reverse Power Rule ∫ xⁿ dx = xⁿ⁺¹/(n + 1): 6(x³/3) + 2(x²/2) + C = 2x³ + x² + C."
+      },
+      {
+        id: 9,
+        topic: "AREA UNDER CURVE",
+        monsterName: "RIEMANN WYVERN",
+        monsterSprite: "dragon",
+        prompt: "Compute the exact area under the curve via definite integral:",
+        mathHTML: `
+          <span class="int-block">
+            <span class="int-symbol">&int;</span>
+            <span class="int-bounds"><span>2</span><span>0</span></span>
+          </span>
+          <span>3x<sup>2</sup> dx</span>
+        `,
+        options: [
+          { text: "8", isCorrect: true },
+          { text: "12", isCorrect: false },
+          { text: "6", isCorrect: false },
+          { text: "24", isCorrect: false }
+        ],
+        explanation: "Find the antiderivative F(x) = x³. Evaluate from 0 to 2: F(2) − F(0) = 2³ − 0³ = 8 − 0 = 8."
+      },
+      {
+        id: 10,
+        topic: "FUNDAMENTAL THEOREM",
+        monsterName: "CALCULUS OVERLORD",
+        monsterSprite: "dragon",
+        prompt: "A particle moves with velocity v(t) = 4t + 1 m/s. Find its displacement from t = 0 to t = 3:",
+        mathHTML: `
+          <span>&Delta;s = </span>
+          <span class="int-block">
+            <span class="int-symbol">&int;</span>
+            <span class="int-bounds"><span>3</span><span>0</span></span>
+          </span>
+          <span>(4t + 1) dt</span>
+        `,
+        options: [
+          { text: "21 meters", isCorrect: true },
+          { text: "13 meters", isCorrect: false },
+          { text: "18 meters", isCorrect: false },
+          { text: "24 meters", isCorrect: false }
+        ],
+        explanation: "By the Fundamental Theorem of Calculus, displacement is ∫₀³ (4t + 1) dt = [2t² + t]₀³ = (2(3)² + 3) − (0) = 18 + 3 = 21 meters."
+      }
+    ];
+
+    /* ========================================================================
+       4. APPLICATION STATE & DOM REFERENCES
+       ======================================================================== */
+    const state = {
+      currentIndex: 0,
+      score: 0,
+      xp: 0,
+      streak: 0,
+      maxStreak: 0,
+      answered: false,
+      history: [] // Stores { question, selectedText, correctText, isCorrect }
+    };
+
+    const dom = {
+      crtOverlay: document.getElementById('crtOverlay'),
+      crtToggleBtn: document.getElementById('crtToggleBtn'),
+      soundToggleBtn: document.getElementById('soundToggleBtn'),
+
+      startScreen: document.getElementById('startScreen'),
+      quizScreen: document.getElementById('quizScreen'),
+      resultsScreen: document.getElementById('resultsScreen'),
+
+      previewWizardCanvas: document.getElementById('previewWizardCanvas'),
+      previewMonsterCanvas: document.getElementById('previewMonsterCanvas'),
+      startBtn: document.getElementById('startBtn'),
+
+      hudStage: document.getElementById('hudStage'),
+      hudScore: document.getElementById('hudScore'),
+      hudStreak: document.getElementById('hudStreak'),
+      progressTrack: document.getElementById('progressTrack'),
+      progressFill: document.getElementById('progressFill'),
+
+      wizardCanvas: document.getElementById('wizardCanvas'),
+      monsterCanvas: document.getElementById('monsterCanvas'),
+      monsterName: document.getElementById('monsterName'),
+      topicBadge: document.getElementById('topicBadge'),
+      battleToast: document.getElementById('battleToast'),
+
+      questionPrompt: document.getElementById('questionPrompt'),
+      questionMath: document.getElementById('questionMath'),
+      optionsGrid: document.getElementById('optionsGrid'),
+
+      feedbackPanel: document.getElementById('feedbackPanel'),
+      feedbackHeader: document.getElementById('feedbackHeader'),
+      feedbackBody: document.getElementById('feedbackBody'),
+      nextBtn: document.getElementById('nextBtn'),
+      nextBtnLabel: document.getElementById('nextBtnLabel'),
+
+      rankBadge: document.getElementById('rankBadge'),
+      finalScoreText: document.getElementById('finalScoreText'),
+      finalFlavorText: document.getElementById('finalFlavorText'),
+      finalXp: document.getElementById('finalXp'),
+      finalMaxStreak: document.getElementById('finalMaxStreak'),
+      finalAccuracy: document.getElementById('finalAccuracy'),
+      reviewList: document.getElementById('reviewList'),
+      playAgainBtn: document.getElementById('playAgainBtn')
+    };
+
+    /* ========================================================================
+       5. HELPER UTILITIES
+       ======================================================================== */
+    function shuffleArray(arr) {
+      const copy = arr.slice();
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function showScreen(screenEl) {
+      [dom.startScreen, dom.quizScreen, dom.resultsScreen].forEach(s => s.classList.remove('active'));
+      screenEl.classList.add('active');
+    }
+
+    function triggerBattleAnimation(isHit) {
+      // Reset classes
+      dom.wizardCanvas.classList.remove('anim-wizard-attack', 'anim-wizard-hurt');
+      dom.monsterCanvas.classList.remove('anim-monster-hit', 'anim-monster-attack');
+      void dom.wizardCanvas.offsetWidth; // Force reflow
+
+      if (isHit) {
+        dom.wizardCanvas.classList.add('anim-wizard-attack');
+        dom.monsterCanvas.classList.add('anim-monster-hit');
+      } else {
+        dom.monsterCanvas.classList.add('anim-monster-attack');
+        dom.wizardCanvas.classList.add('anim-wizard-hurt');
+      }
+    }
+
+    /* ========================================================================
+       6. CORE QUIZ GAMEPLAY LOGIC
+       ======================================================================== */
+    function startNewQuest() {
+      state.currentIndex = 0;
+      state.score = 0;
+      state.xp = 0;
+      state.streak = 0;
+      state.maxStreak = 0;
+      state.answered = false;
+      state.history = [];
+
+      sfx.startFanfare();
+      showScreen(dom.quizScreen);
+      renderQuestion();
+    }
+
+    function updateHud() {
+      const qNum = state.currentIndex + 1;
+      const total = QUESTIONS.length;
+      dom.hudStage.textContent = `${qNum} / ${total}`;
+      dom.hudScore.textContent = `${state.xp} XP`;
+      dom.hudStreak.textContent = `${state.streak}x`;
+
+      if (state.streak >= 3) {
+        dom.hudStreak.classList.add('streak-hot');
+      } else {
+        dom.hudStreak.classList.remove('streak-hot');
+      }
+
+      const pct = (qNum / total) * 100;
+      dom.progressFill.style.width = `${pct}%`;
+      dom.progressTrack.setAttribute('aria-valuenow', String(qNum));
+    }
+
+    function renderQuestion() {
+      state.answered = false;
+      const q = QUESTIONS[state.currentIndex];
+
+      updateHud();
+
+      // Render sprites & arena info
+      drawSprite(dom.wizardCanvas, 'wizard');
+      drawSprite(dom.monsterCanvas, q.monsterSprite);
+      dom.monsterName.textContent = q.monsterName;
+      dom.topicBadge.textContent = q.topic;
+      dom.battleToast.textContent = "CHOOSE YOUR SPELL!";
+      dom.battleToast.style.color = "var(--accent-gold)";
+
+      // Render question text & formatted math
+      dom.questionPrompt.textContent = `${state.currentIndex + 1}. ${q.prompt}`;
+      dom.questionMath.innerHTML = q.mathHTML;
+
+      // Hide feedback & next button
+      dom.feedbackPanel.classList.remove('visible');
+      dom.nextBtn.style.display = 'none';
+
+      // Shuffle choices for replayability
+      const shuffledOptions = shuffleArray(q.options);
+      const letters = ['A', 'B', 'C', 'D'];
+
+      dom.optionsGrid.innerHTML = '';
+      shuffledOptions.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'option-btn';
+        btn.dataset.correct = opt.isCorrect ? '1' : '0';
+        btn.innerHTML = `
+          <span class="option-key">${letters[idx]}</span>
+          <span class="option-text">${opt.text}</span>
+        `;
+        btn.addEventListener('click', () => handleAnswerSelect(btn, opt, q));
+        dom.optionsGrid.appendChild(btn);
+      });
+    }
+
+    function handleAnswerSelect(selectedBtn, selectedOpt, questionObj) {
+      if (state.answered) return;
+      state.answered = true;
+
+      const isCorrect = selectedOpt.isCorrect;
+      const allBtns = Array.from(dom.optionsGrid.querySelectorAll('.option-btn'));
+
+      // Lock all buttons and apply pixel feedback states
+      allBtns.forEach(btn => {
+        btn.disabled = true;
+        const btnIsCorrect = btn.dataset.correct === '1';
+        if (btnIsCorrect) {
+          btn.classList.add('correct');
+        } else if (btn === selectedBtn && !isCorrect) {
+          btn.classList.add('wrong');
+        } else {
+          btn.classList.add('dimmed');
+        }
+      });
+
+      // Update Score, XP, Streak, Audio, and Animations
+      if (isCorrect) {
+        state.score += 1;
+        state.streak += 1;
+        if (state.streak > state.maxStreak) state.maxStreak = state.streak;
+
+        const bonusXp = (state.streak - 1) * 25;
+        const gainedXp = 100 + bonusXp;
+        state.xp += gainedXp;
+
+        sfx.correct();
+        triggerBattleAnimation(true);
+
+        dom.battleToast.textContent = `CRITICAL HIT! +${gainedXp} XP`;
+        dom.battleToast.style.color = "var(--accent-green)";
+        dom.feedbackHeader.className = "feedback-header win";
+        dom.feedbackHeader.textContent = "★ SPELL SUCCESSFUL! MONSTER DEFEATED!";
+      } else {
+        state.streak = 0;
+        sfx.wrong();
+        triggerBattleAnimation(false);
+
+        dom.battleToast.textContent = "SPELL MISSED! -1 STREAK";
+        dom.battleToast.style.color = "var(--accent-red)";
+        dom.feedbackHeader.className = "feedback-header lose";
+        dom.feedbackHeader.textContent = "✖ SPELL FIZZLED! REVIEW THE THEOREM:";
+      }
+
+      updateHud();
+
+      // Record for end-of-game quest log
+      const correctOptionObj = questionObj.options.find(o => o.isCorrect);
+      state.history.push({
+        number: questionObj.id,
+        topic: questionObj.topic,
+        prompt: questionObj.prompt,
+        selectedHTML: selectedOpt.text,
+        correctHTML: correctOptionObj ? correctOptionObj.text : '',
+        isCorrect: isCorrect,
+        explanation: questionObj.explanation
+      });
+
+      // Show step-by-step explanation box
+      dom.feedbackBody.textContent = questionObj.explanation;
+      dom.feedbackPanel.classList.add('visible');
+
+      // Show Next / Finish button
+      const isLast = state.currentIndex === QUESTIONS.length - 1;
+      dom.nextBtnLabel.textContent = isLast ? "FINISH QUEST ★" : "NEXT QUEST ->";
+      dom.nextBtn.style.display = 'inline-flex';
+    }
+
+    function handleNextStep() {
+      sfx.blip();
+      if (state.currentIndex < QUESTIONS.length - 1) {
+        state.currentIndex += 1;
+        renderQuestion();
+      } else {
+        renderResultsScreen();
+      }
+    }
+
+    function getRankDetails(score) {
+      if (score === 10) {
+        return {
+          rank: "RANK: CALCULUS GRANDMASTER",
+          flavor: "Flawless victory! Newton and Leibniz would be proud of your mastery."
+        };
+      } else if (score >= 8) {
+        return {
+          rank: "RANK: DERIVATIVE PALADIN",
+          flavor: "Heroic work! Your command of limits and rates of change is formidable."
+        };
+      } else if (score >= 5) {
+        return {
+          rank: "RANK: INTEGRAL RANGER",
+          flavor: "Solid questing! Review the missed scrolls below to reach Grandmaster."
+        };
+      } else {
+        return {
+          rank: "RANK: LIMIT APPRENTICE",
+          flavor: "Every mage starts here! Inspect the step-by-step solutions and try again."
+        };
+      }
+    }
+
+    function renderResultsScreen() {
+      sfx.victory();
+      showScreen(dom.resultsScreen);
+
+      const total = QUESTIONS.length;
+      const pct = Math.round((state.score / total) * 100);
+      const rankInfo = getRankDetails(state.score);
+
+      dom.rankBadge.textContent = rankInfo.rank;
+      dom.finalScoreText.textContent = `${state.score} / ${total} (${pct}%)`;
+      dom.finalFlavorText.textContent = rankInfo.flavor;
+      dom.finalXp.textContent = `${state.xp} XP`;
+      dom.finalMaxStreak.textContent = `${state.maxStreak}x`;
+      dom.finalAccuracy.textContent = `${pct}%`;
+
+      // Populate Quest Log Review
+      dom.reviewList.innerHTML = '';
+      state.history.forEach(item => {
+        const div = document.createElement('div');
+        div.className = `review-item ${item.isCorrect ? '' : 'missed'}`;
+        div.innerHTML = `
+          <div class="review-item-top">
+            <span>Q${item.number} • ${item.topic}</span>
+            <span class="review-status-tag ${item.isCorrect ? 'ok' : 'no'}">
+              ${item.isCorrect ? '✓ CLEARED' : '✗ MISSED'}
+            </span>
+          </div>
+          <div class="review-q-text">${item.prompt}</div>
+          <div class="review-ans-detail">
+            ${item.isCorrect
+              ? `Answer: ${item.correctHTML}`
+              : `Your Answer: ${item.selectedHTML} &nbsp;|&nbsp; Correct: ${item.correctHTML}`
+            }
+          </div>
+        `;
+        dom.reviewList.appendChild(div);
+      });
+    }
+
+    /* ========================================================================
+       7. CORE QUIZ GAMEPLAY LOGIC
+       ======================================================================== */
+    function startNewQuest() {
+      // Require at least 1 inserted arcade coin
+      if (state.credits <= 0) {
+        sfx.lockedBuzz();
+        const targetBtn = dom.startScreen.classList.contains('active') ? dom.startBtn : dom.playAgainBtn;
+        targetBtn.classList.remove('anim-shake-locked');
+        void targetBtn.offsetWidth;
+        targetBtn.classList.add('anim-shake-locked');
+        return;
+      }
+
+      // Consume 1 coin & capture active player name
+      state.credits -= 1;
+      updateCreditUI();
+      syncPlayerNameFromInput();
+
+      state.currentIndex = 0;
+      state.score = 0;
+      state.points = 0;
+      state.streak = 0;
+      state.maxStreak = 0;
+      state.wizardHp = 100;
+      state.answered = false;
+      state.savedRunId = null;
+      state.history = [];
+
+      sfx.startFanfare();
+      showScreen(dom.quizScreen);
+      renderQuestion();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateHud() {
+      const qNum = state.currentIndex + 1;
+      const total = QUESTIONS.length;
+      dom.hudStage.textContent = `${qNum} / ${total}`;
+      dom.hudScore.textContent = `${state.points} PTS`;
+      dom.hudStreak.textContent = `${state.streak}x`;
+
+      if (state.streak >= 3) {
+        dom.hudStreak.classList.add('streak-hot');
+      } else {
+        dom.hudStreak.classList.remove('streak-hot');
+      }
+
+      // Update Scholar HP bar
+      dom.wizardHpFill.style.width = `${Math.max(10, state.wizardHp)}%`;
+      if (state.wizardHp <= 35) {
+        dom.wizardHpFill.style.backgroundColor = 'var(--accent-red)';
+      } else if (state.wizardHp <= 65) {
+        dom.wizardHpFill.style.backgroundColor = 'var(--accent-gold)';
+      } else {
+        dom.wizardHpFill.style.backgroundColor = 'var(--accent-green)';
+      }
+
+      const pct = (qNum / total) * 100;
+      dom.progressFill.style.width = `${pct}%`;
+      dom.progressTrack.setAttribute('aria-valuenow', String(qNum));
+    }
+
+    function renderQuestion() {
+      state.answered = false;
+      const q = QUESTIONS[state.currentIndex];
+
+      updateHud();
+
+      // Reset monster HP bar to full for new encounter
+      dom.monsterHpFill.style.width = '100%';
+
+      // Render sprites & arena info
+      drawSprite(dom.wizardCanvas, 'wizard');
+      drawSprite(dom.monsterCanvas, q.monsterSprite);
+      dom.monsterName.textContent = q.monsterName;
+      dom.topicBadge.textContent = q.topic;
+      dom.battleToast.textContent = "CHOOSE YOUR SPELL!";
+      dom.battleToast.style.color = "var(--accent-gold)";
+
+      // Render question text & formatted math
+      dom.questionPrompt.textContent = `${state.currentIndex + 1}. ${q.prompt}`;
+      dom.questionMath.innerHTML = q.mathHTML;
+
+      // Hide feedback & next button
+      dom.feedbackPanel.classList.remove('visible');
+      dom.nextBtn.style.display = 'none';
+
+      // Shuffle choices for replayability
+      const shuffledOptions = shuffleArray(q.options);
+      const letters = ['A', 'B', 'C', 'D'];
+
+      dom.optionsGrid.innerHTML = '';
+      shuffledOptions.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'option-btn';
+        btn.dataset.correct = opt.isCorrect ? '1' : '0';
+        btn.innerHTML = `
+          <span class="option-key">${letters[idx]}</span>
+          <span class="option-text">${opt.text}</span>
+        `;
+        btn.addEventListener('click', () => handleAnswerSelect(btn, opt, q));
+        dom.optionsGrid.appendChild(btn);
+      });
+    }
+
+    function handleAnswerSelect(selectedBtn, selectedOpt, questionObj) {
+      if (state.answered) return;
+      state.answered = true;
+
+      const isCorrect = selectedOpt.isCorrect;
+      const allBtns = Array.from(dom.optionsGrid.querySelectorAll('.option-btn'));
+
+      // Lock all buttons and apply pixel feedback states
+      allBtns.forEach(btn => {
+        btn.disabled = true;
+        const btnIsCorrect = btn.dataset.correct === '1';
+        if (btnIsCorrect) {
+          btn.classList.add('correct');
+        } else if (btn === selectedBtn && !isCorrect) {
+          btn.classList.add('wrong');
+        } else {
+          btn.classList.add('dimmed');
+        }
+      });
+
+      // Update Score (out of 1000), Streak, HP Bars, Audio, and Animations
+      if (isCorrect) {
+        state.score += 1;
+        state.points = state.score * 100;
+        state.streak += 1;
+        if (state.streak > state.maxStreak) state.maxStreak = state.streak;
+
+        sfx.correct();
+        triggerBattleAnimation(true);
+        dom.monsterHpFill.style.width = '0%';
+
+        const streakNote = state.streak >= 2 ? ` (${state.streak}x STREAK!)` : '';
+        dom.battleToast.textContent = `CRITICAL HIT! +100 PTS${streakNote}`;
+        dom.battleToast.style.color = "var(--accent-green)";
+        dom.feedbackHeader.className = "feedback-header win";
+        dom.feedbackHeader.textContent = "★ SPELL SUCCESSFUL! MONSTER DEFEATED!";
+      } else {
+        state.streak = 0;
+        state.wizardHp = Math.max(10, state.wizardHp - 15);
+        sfx.wrong();
+        triggerBattleAnimation(false);
+
+        dom.battleToast.textContent = "SPELL MISSED! STREAK RESET";
+        dom.battleToast.style.color = "var(--accent-red)";
+        dom.feedbackHeader.className = "feedback-header lose";
+        dom.feedbackHeader.textContent = "✖ SPELL FIZZLED! REVIEW THE THEOREM:";
+      }
+
+      updateHud();
+
+      // Record for end-of-game quest log
+      const correctOptionObj = questionObj.options.find(o => o.isCorrect);
+      state.history.push({
+        number: questionObj.id,
+        topic: questionObj.topic,
+        prompt: questionObj.prompt,
+        selectedHTML: selectedOpt.text,
+        correctHTML: correctOptionObj ? correctOptionObj.text : '',
+        isCorrect: isCorrect,
+        explanation: questionObj.explanation
+      });
+
+      // Show step-by-step explanation box
+      dom.feedbackBody.textContent = questionObj.explanation;
+      dom.feedbackPanel.classList.add('visible');
+
+      // Show Next / Finish button
+      const isLast = state.currentIndex === QUESTIONS.length - 1;
+      dom.nextBtnLabel.textContent = isLast ? "FINISH QUEST ★" : "NEXT QUEST ->";
+      dom.nextBtn.style.display = 'inline-flex';
+    }
+
+    function handleNextStep() {
+      sfx.blip();
+      if (state.currentIndex < QUESTIONS.length - 1) {
+        state.currentIndex += 1;
+        renderQuestion();
+      } else {
+        renderResultsScreen();
+      }
+    }
+
+    function getRankDetails(score) {
+      if (score === 10) {
+        return {
+          rank: "RANK: CALCULUS GRANDMASTER",
+          shortRank: "GRANDMASTER",
+          flavor: "Flawless victory! Newton and Leibniz would be proud of your mastery."
+        };
+      } else if (score >= 8) {
+        return {
+          rank: "RANK: DERIVATIVE PALADIN",
+          shortRank: "PALADIN",
+          flavor: "Heroic work! Your command of limits and rates of change is formidable."
+        };
+      } else if (score >= 5) {
+        return {
+          rank: "RANK: INTEGRAL RANGER",
+          shortRank: "RANGER",
+          flavor: "Solid questing! Review the missed scrolls below to reach Grandmaster."
+        };
+      } else {
+        return {
+          rank: "RANK: LIMIT APPRENTICE",
+          shortRank: "APPRENTICE",
+          flavor: "Every mage starts here! Inspect the step-by-step solutions and try again."
+        };
+      }
+    }
+
+    function renderResultsScreen() {
+      sfx.victory();
+      showScreen(dom.resultsScreen);
+      updateCreditUI();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      const total = QUESTIONS.length;
+      const pct = Math.round((state.score / total) * 100);
+      const rankInfo = getRankDetails(state.score);
+
+      dom.rankBadge.textContent = rankInfo.rank;
+      dom.finalScoreText.textContent = `${state.points} PTS (${pct}%)`;
+      dom.finalFlavorText.textContent = rankInfo.flavor;
+      dom.finalXp.textContent = `${state.points} / 1000`;
+      dom.finalMaxStreak.textContent = `${state.maxStreak}x`;
+      dom.finalAccuracy.textContent = `${state.score} / ${total}`;
+
+      // Automatically record score under the player's Start Screen name if it qualifies for Top 5
+      const currentScores = loadHighScores();
+      const currentBest = currentScores.length > 0 ? currentScores[0].score : 0;
+
+      if (qualifiesForTop5(state.points)) {
+        const runId = `run-${Date.now()}`;
+        state.savedRunId = runId;
+
+        currentScores.push({
+          id: runId,
+          name: state.playerName,
+          score: state.points,
+          accuracy: `${state.score}/10`,
+          rank: rankInfo.shortRank,
+          date: formatShortDate()
+        });
+        saveHighScoresList(currentScores);
+
+        dom.newRecordBox.style.display = 'block';
+        dom.newRecordTitle.textContent = state.points > currentBest
+          ? '★ NEW #1 ALL-TIME RECORD! ★'
+          : '★ NEW TOP 5 HALL OF FAME SCORE! ★';
+        dom.recordedNameDisplay.textContent = state.playerName;
+        dom.playerInitialsInput.value = state.playerName;
+      } else {
+        dom.newRecordBox.style.display = 'none';
+      }
+
+      // Render End Screen High Score Table (also updates Start Screen table in background)
+      renderHighScoreTable(dom.endHighScoreBody, dom.endPersonalBest, state.savedRunId);
+      renderHighScoreTable(dom.startHighScoreBody, dom.startPersonalBest, state.savedRunId);
+
+      // Populate Quest Log Review
+      dom.reviewList.innerHTML = '';
+      state.history.forEach(item => {
+        const div = document.createElement('div');
+        div.className = `review-item ${item.isCorrect ? '' : 'missed'}`;
+        div.innerHTML = `
+          <div class="review-item-top">
+            <span>Q${item.number} • ${item.topic}</span>
+            <span class="review-status-tag ${item.isCorrect ? 'ok' : 'no'}">
+              ${item.isCorrect ? '✓ CLEARED' : '✗ MISSED'}
+            </span>
+          </div>
+          <div class="review-q-text">${item.prompt}</div>
+          <div class="review-ans-detail">
+            ${item.isCorrect
+              ? `Answer: ${item.correctHTML}`
+              : `Your Answer: ${item.selectedHTML} &nbsp;|&nbsp; Correct: ${item.correctHTML}`
+            }
+          </div>
+        `;
+        dom.reviewList.appendChild(div);
+      });
+    }
+
+    function handleSaveHighScore(e) {
+      e.preventDefault();
+      if (!state.savedRunId) return;
+
+      const updatedName = sanitizePlayerName(dom.playerInitialsInput.value);
+      state.playerName = updatedName;
+      persistPlayerName(updatedName);
+      dom.startPlayerNameInput.value = updatedName;
+      syncPlayerNameFromInput();
+
+      const scores = loadHighScores();
+      const entry = scores.find(item => item.id === state.savedRunId);
+      if (entry) {
+        entry.name = updatedName;
+        saveHighScoresList(scores);
+      }
+
+      sfx.correct();
+      dom.recordedNameDisplay.textContent = updatedName;
+      renderHighScoreTable(dom.endHighScoreBody, dom.endPersonalBest, state.savedRunId);
+      renderHighScoreTable(dom.startHighScoreBody, dom.startPersonalBest, state.savedRunId);
+    }
+
+    function renderResetControls(confirming = false) {
+      if (!dom.resetControlsWrap) return;
+      if (!confirming) {
+        dom.resetControlsWrap.innerHTML = `
+          <button id="resetScoresBtn" class="pixel-btn-mini danger" type="button">RESET SCORES</button>
+        `;
+        document.getElementById('resetScoresBtn').addEventListener('click', () => {
+          sfx.blip();
+          renderResetControls(true);
+        });
+      } else {
+        dom.resetControlsWrap.innerHTML = `
+          <div class="reset-confirm-bar">
+            <span>CLEAR?</span>
+            <button id="confirmResetYes" class="pixel-btn-mini danger" type="button">YES</button>
+            <button id="confirmResetNo" class="pixel-btn-mini" style="min-height:36px;padding:6px 8px;font-size:0.5rem;" type="button">NO</button>
+          </div>
+        `;
+        document.getElementById('confirmResetYes').addEventListener('click', () => {
+          resetHighScoresToDefault();
+          sfx.wrong();
+          renderHighScoreTable(dom.startHighScoreBody, dom.startPersonalBest);
+          renderResetControls(false);
+        });
+        document.getElementById('confirmResetNo').addEventListener('click', () => {
+          sfx.blip();
+          renderResetControls(false);
+        });
+      }
+    }
+
+    /* ========================================================================
+       8. INITIALIZATION & EVENT LISTENERS
+       ======================================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      // Restore last used player name if saved
+      const savedName = loadSavedPlayerName();
+      if (savedName) {
+        dom.startPlayerNameInput.value = savedName;
+      }
+      syncPlayerNameFromInput();
+      updateCreditUI();
+
+      // Draw Start Screen Sprites
+      drawSprite(dom.previewWizardCanvas, 'wizard');
+      drawSprite(dom.previewMonsterCanvas, 'dragon');
+
+      // Render Start Screen High Scores & Reset Control
+      renderHighScoreTable(dom.startHighScoreBody, dom.startPersonalBest);
+      renderResetControls(false);
+
+      // Live update preview sprite tag as player types their name
+      dom.startPlayerNameInput.addEventListener('input', syncPlayerNameFromInput);
+
+      // Insert Coin Buttons (Start & End Screens)
+      dom.insertCoinBtn.addEventListener('click', () => insertCoin(true));
+      dom.endInsertCoinBtn.addEventListener('click', () => insertCoin(false));
+
+      // Keyboard shortcut: Press 'C' (when not typing in an input) to insert a coin
+      window.addEventListener('keydown', (e) => {
+        if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+        if (e.key === 'c' || e.key === 'C') {
+          insertCoin(dom.startScreen.classList.contains('active'));
+        }
+      });
+
+      // CRT Scanline Toggle
+      let crtEnabled = true;
+      dom.crtToggleBtn.addEventListener('click', () => {
+        crtEnabled = !crtEnabled;
+        dom.crtOverlay.classList.toggle('hidden', !crtEnabled);
+        dom.crtToggleBtn.textContent = `CRT: ${crtEnabled ? 'ON' : 'OFF'}`;
+        sfx.blip();
+      });
+
+      // Sound Toggle
+      dom.soundToggleBtn.addEventListener('click', () => {
+        sfx.muted = !sfx.muted;
+        dom.soundToggleBtn.textContent = `SFX: ${sfx.muted ? 'OFF' : 'ON'}`;
+        if (!sfx.muted) sfx.blip();
+      });
+
+      // High Score Name Update Form
+      dom.saveScoreForm.addEventListener('submit', handleSaveHighScore);
+
+      // Navigation Buttons
+      dom.startBtn.addEventListener('click', startNewQuest);
+      dom.nextBtn.addEventListener('click', handleNextStep);
+      dom.playAgainBtn.addEventListener('click', startNewQuest);
+    });
+  </script>
+</body>
+</html>
