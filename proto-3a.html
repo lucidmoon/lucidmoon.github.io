@@ -1,0 +1,2765 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PETUALANGAN SAWAH 8-BIT: IPA KELAS 5 SD</title>
+  <!-- Google Fonts untuk Estetika Retro Pixel Ramah Anak -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    /* ==========================================================================
+       1. DESIGN TOKENS: TEMA ALAM SAWAH CERAH & RAMAH ANAK 8-BIT
+       ========================================================================== */
+    :root {
+      --sky-top: #4db8ff;
+      --sky-mid: #8ce0ff;
+      --sky-light: #d9f5ff;
+      --sun-gold: #ffd93d;
+      --sun-orange: #ff9f1c;
+      --grass-bright: #58b848;
+      --grass-mid: #3b8c32;
+      --grass-dark: #256120;
+      --paddy-gold: #f5c842;
+      --paddy-dark: #c99618;
+      --wood-light: #fff9e6;
+      --wood-panel: #f7ecd0;
+      --wood-card: #ffffff;
+      --wood-border: #6e3f1c;
+      --wood-shadow: #42220b;
+      --accent-blue: #2b9348;
+      --accent-sky: #0096c7;
+      --accent-pink: #f72585;
+      --accent-red: #e63946;
+      --accent-red-dark: #9e1924;
+      --accent-green: #2ec4b6;
+      --accent-green-dark: #167a70;
+      --text-dark: #2b1d0e;
+      --text-muted: #6b5239;
+      --font-pixel: 'Press Start 2P', 'Courier New', monospace;
+      --font-readable: 'VT323', 'Courier New', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    html, body {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    /* Latar Belakang Pemandangan Sawah Pixel Art Cerah */
+    body {
+      background-color: var(--sky-top);
+      background-image:
+        /* Matahari pixel di pojok kiri atas */
+        radial-gradient(circle at 12% 10%, var(--sun-gold) 0%, var(--sun-gold) 34px, rgba(255, 217, 61, 0.35) 35px, rgba(255, 217, 61, 0.35) 48px, transparent 49px),
+        /* Awan pixel lembut */
+        radial-gradient(ellipse at 32% 14%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.85) 38px, transparent 39px),
+        radial-gradient(ellipse at 37% 13%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.9) 45px, transparent 46px),
+        radial-gradient(ellipse at 78% 11%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.85) 42px, transparent 43px),
+        /* Gradasi langit ke terasering sawah hijau */
+        linear-gradient(
+          180deg,
+          var(--sky-top) 0%,
+          var(--sky-mid) 46%,
+          var(--sky-light) 64%,
+          var(--grass-bright) 64%,
+          var(--grass-bright) 78%,
+          var(--grass-mid) 78%,
+          var(--grass-mid) 90%,
+          var(--grass-dark) 90%,
+          var(--grass-dark) 100%
+        );
+      color: var(--text-dark);
+      font-family: var(--font-readable);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(6px, 2vw, 14px);
+    }
+
+    /* ==========================================================================
+       2. OPSIONAL CRT SCANLINES OVERLAY (DEFAULT OFF AGAR CERAH UNTUK ANAK)
+       ========================================================================== */
+    .crt-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%,
+        rgba(0, 0, 0, 0.16) 50%
+      ), linear-gradient(
+        90deg,
+        rgba(255, 0, 0, 0.02),
+        rgba(0, 255, 0, 0.01),
+        rgba(0, 0, 255, 0.02)
+      );
+      background-size: 100% 4px, 6px 100%;
+      opacity: 0.7;
+      transition: opacity 0.2s ease;
+    }
+
+    .crt-overlay.hidden {
+      opacity: 0;
+    }
+
+    /* ==========================================================================
+       3. BINGKAI PAPAN KAYU SAWAH & TOMBOL ARCADE
+       ========================================================================== */
+    .game-shell {
+      width: 100%;
+      max-width: 820px;
+      background: var(--wood-panel);
+      border: 4px solid var(--wood-shadow);
+      box-shadow:
+        inset 0 0 0 4px var(--paddy-gold),
+        inset 0 0 0 8px var(--wood-border),
+        0 10px 0 rgba(43, 29, 14, 0.45);
+      padding: clamp(14px, 3vw, 22px);
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Bar Kontrol Atas */
+    .utility-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 4px dashed rgba(110, 63, 28, 0.3);
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .arcade-badge {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.52rem, 1.8vw, 0.65rem);
+      color: var(--wood-border);
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--wood-light);
+      padding: 6px 10px;
+      border: 3px solid var(--wood-border);
+    }
+
+    .blink-dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      flex-shrink: 0;
+      background: var(--grass-bright);
+      border: 2px solid var(--wood-shadow);
+      animation: blink 1s steps(2, start) infinite;
+    }
+
+    @keyframes blink {
+      to { visibility: hidden; }
+    }
+
+    .utility-controls {
+      display: flex;
+      gap: 6px;
+    }
+
+    .pixel-btn-mini {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.5rem, 1.7vw, 0.58rem);
+      padding: 8px 10px;
+      min-height: 44px;
+      min-width: 44px;
+      background: var(--wood-light);
+      color: var(--text-dark);
+      border: 3px solid var(--wood-shadow);
+      box-shadow: inset -2px -2px 0 rgba(110, 63, 28, 0.25), inset 2px 2px 0 #ffffff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.08s;
+    }
+
+    .pixel-btn-mini:hover {
+      background: var(--sun-gold);
+    }
+
+    .pixel-btn-mini:active {
+      transform: translateY(2px);
+    }
+
+    .pixel-btn-mini.danger {
+      background: #ffe3e6;
+      color: var(--accent-red-dark);
+      min-height: 36px;
+      padding: 6px 8px;
+      font-size: 0.5rem;
+    }
+
+    .pixel-btn-mini.danger:hover {
+      background: var(--accent-red);
+      color: #fff;
+    }
+
+    /* Tombol Utama Arcade Ramah Anak */
+    .pixel-btn {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.72rem, 2.4vw, 0.88rem);
+      padding: 14px 20px;
+      min-height: 50px;
+      background: var(--grass-bright);
+      color: #ffffff;
+      text-shadow: 2px 2px 0 var(--grass-dark);
+      border: 4px solid var(--wood-shadow);
+      box-shadow:
+        inset -4px -4px 0 var(--grass-dark),
+        inset 4px 4px 0 #95e884,
+        0 4px 0 var(--wood-shadow);
+      cursor: pointer;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.08s, filter 0.1s;
+    }
+
+    .pixel-btn:hover {
+      filter: brightness(1.06);
+    }
+
+    .pixel-btn:active {
+      transform: translateY(4px);
+      box-shadow:
+        inset -2px -2px 0 var(--grass-dark),
+        inset 2px 2px 0 #95e884,
+        0 0 0 var(--wood-shadow);
+    }
+
+    .pixel-btn.sky {
+      background: var(--accent-sky);
+      text-shadow: 2px 2px 0 #023e8a;
+      box-shadow:
+        inset -4px -4px 0 #006494,
+        inset 4px 4px 0 #72efdd,
+        0 4px 0 var(--wood-shadow);
+    }
+
+    .pixel-btn.gold {
+      background: var(--sun-gold);
+      color: var(--text-dark);
+      text-shadow: none;
+      box-shadow:
+        inset -4px -4px 0 var(--paddy-dark),
+        inset 4px 4px 0 #fff5b8,
+        0 4px 0 var(--wood-shadow);
+    }
+
+    /* ==========================================================================
+       4. LAYAR-LAYAR UTAMA (START, KUIS, HASIL)
+       ========================================================================== */
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+      animation: pixelFadeIn 0.25s steps(4);
+    }
+
+    @keyframes pixelFadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* LAYAR MULAI (START SCREEN) */
+    .start-hero {
+      text-align: center;
+      padding: 4px 4px 10px;
+    }
+
+    .game-title {
+      font-family: var(--font-pixel);
+      font-size: clamp(1.05rem, 4vw, 1.85rem);
+      line-height: 1.45;
+      color: var(--grass-mid);
+      text-shadow:
+        3px 3px 0 var(--wood-shadow),
+        -2px -2px 0 var(--sun-gold);
+      margin-bottom: 8px;
+    }
+
+    .game-subtitle {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.56rem, 2vw, 0.78rem);
+      color: var(--wood-border);
+      background: var(--sun-gold);
+      display: inline-block;
+      padding: 6px 12px;
+      border: 3px solid var(--wood-shadow);
+      letter-spacing: 1px;
+      margin-bottom: 14px;
+    }
+
+    .stage-preview-box {
+      background: linear-gradient(180deg, #b8ebff 0%, #e6f9ff 62%, #76d466 62%, #4ea83e 100%);
+      border: 4px solid var(--wood-shadow);
+      box-shadow: inset 0 0 0 3px #ffffff;
+      padding: clamp(10px, 2.5vw, 16px);
+      margin: 0 auto 14px;
+      max-width: 650px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sprite-duo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(14px, 4vw, 28px);
+      padding: 4px 0;
+    }
+
+    .vs-badge {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.65rem, 2.2vw, 0.85rem);
+      color: #ffffff;
+      background: var(--sun-orange);
+      padding: 6px 8px;
+      border: 3px solid var(--wood-shadow);
+      text-shadow: 2px 2px 0 var(--wood-shadow);
+    }
+
+    .quest-brief-card {
+      background: rgba(255, 255, 255, 0.94);
+      border: 3px solid var(--wood-shadow);
+      padding: 10px 12px;
+      max-width: 560px;
+    }
+
+    .quest-brief {
+      font-size: clamp(1.2rem, 3.2vw, 1.38rem);
+      line-height: 1.3;
+      color: var(--text-dark);
+    }
+
+    .topic-pills {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .topic-pill {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.46rem, 1.5vw, 0.54rem);
+      padding: 5px 7px;
+      background: var(--wood-light);
+      border: 2px solid var(--wood-border);
+      color: var(--grass-dark);
+    }
+
+    /* ==========================================================================
+       4A. KOTAK KOIN ARCADE & INPUT NAMA PETUALANG
+       ========================================================================== */
+    .arcade-cabinet-controls {
+      background: var(--wood-light);
+      border: 4px solid var(--wood-shadow);
+      box-shadow: inset 0 0 0 3px var(--paddy-gold);
+      padding: clamp(12px, 2.8vw, 16px);
+      margin: 0 auto 14px;
+      max-width: 650px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .cabinet-row {
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .name-entry-group {
+      flex: 1 1 235px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #ffffff;
+      border: 3px solid var(--wood-border);
+      padding: 8px 10px;
+    }
+
+    .cabinet-label {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.48rem, 1.6vw, 0.56rem);
+      color: var(--wood-border);
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .start-name-input {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.75rem, 2.3vw, 0.9rem);
+      text-transform: uppercase;
+      text-align: center;
+      letter-spacing: 2px;
+      width: 100%;
+      max-width: 220px;
+      min-height: 44px;
+      padding: 8px 10px;
+      background: #fffdf5;
+      color: var(--grass-dark);
+      border: 3px solid var(--wood-shadow);
+      box-shadow: inset 0 0 0 2px var(--paddy-gold);
+      outline: none;
+      user-select: text;
+    }
+
+    .start-name-input:focus {
+      box-shadow: inset 0 0 0 3px var(--grass-bright);
+    }
+
+    .coin-slot-group {
+      flex: 1 1 235px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      border: 3px solid var(--wood-border);
+      padding: 8px 10px;
+      position: relative;
+      z-index: 10;
+      pointer-events: auto;
+    }
+
+    .coin-slot-housing {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      position: relative;
+      z-index: 11;
+    }
+
+    .insert-coin-btn {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.54rem, 1.7vw, 0.62rem);
+      padding: 10px 12px;
+      min-height: 46px;
+      background: var(--sun-orange);
+      color: #ffffff;
+      text-shadow: 2px 2px 0 var(--wood-shadow);
+      border: 3px solid var(--wood-shadow);
+      box-shadow:
+        inset -3px -3px 0 #c46d00,
+        inset 3px 3px 0 #ffd180,
+        0 3px 0 var(--wood-shadow);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      z-index: 12;
+      pointer-events: auto;
+      transition: transform 0.08s, box-shadow 0.12s;
+    }
+
+    .insert-coin-btn:hover {
+      filter: brightness(1.07);
+    }
+
+    .insert-coin-btn:active {
+      transform: translateY(3px);
+      box-shadow: inset -2px -2px 0 #c46d00, 0 0 0 var(--wood-shadow);
+    }
+
+    .insert-coin-btn.highlight-nudge {
+      outline: 4px solid var(--accent-pink);
+      box-shadow: 0 0 14px rgba(247, 37, 133, 0.7);
+    }
+
+    .coin-slit-plate {
+      width: 26px;
+      height: 44px;
+      background: #5c3a21;
+      border: 3px solid var(--wood-shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .coin-slit-hole {
+      width: 6px;
+      height: 28px;
+      background: #1c1008;
+      border: 1px solid var(--sun-gold);
+      pointer-events: none;
+    }
+
+    .pixel-coin-icon {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      background: var(--sun-gold);
+      border: 2px solid var(--wood-shadow);
+      box-shadow: inset -2px -2px 0 var(--paddy-dark), inset 2px 2px 0 #fff7c2;
+      border-radius: 50%;
+      flex-shrink: 0;
+      pointer-events: none;
+    }
+
+    @keyframes coinDropAnim {
+      0% { transform: translateY(-22px) scale(1.1); opacity: 1; }
+      60% { transform: translateY(0px) scale(0.85); opacity: 1; }
+      100% { transform: translateY(6px) scale(0.2); opacity: 0; }
+    }
+
+    @keyframes creditFlashAnim {
+      0% { transform: scale(1.15); color: #52b788; }
+      100% { transform: scale(1); color: var(--sun-gold); }
+    }
+
+    .credit-flash {
+      animation: creditFlashAnim 0.35s steps(4);
+    }
+
+    .dropping-coin {
+      position: absolute;
+      top: 4px;
+      left: 50%;
+      margin-left: -8px;
+      pointer-events: none;
+      animation: coinDropAnim 0.35s steps(5) forwards;
+    }
+
+    .credit-led-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: 8px 12px;
+      background: #2b1d0e;
+      border: 3px solid var(--wood-shadow);
+      font-family: var(--font-pixel);
+      font-size: clamp(0.52rem, 1.7vw, 0.64rem);
+      gap: 8px;
+    }
+
+    .credit-status-text {
+      color: #ff9eb5;
+      animation: blink 1s steps(2, start) infinite;
+    }
+
+    .credit-status-text.ready {
+      color: #80ed99;
+      animation: none;
+    }
+
+    .credit-counter {
+      color: var(--sun-gold);
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    .pixel-btn.locked {
+      background: #b5a898;
+      color: #4f4336;
+      text-shadow: none;
+      box-shadow:
+        inset -4px -4px 0 #8a7d6e,
+        inset 4px 4px 0 #dcd2c6,
+        0 4px 0 var(--wood-shadow);
+      cursor: pointer;
+    }
+
+    @keyframes shakeLocked {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      50% { transform: translateX(6px); }
+      75% { transform: translateX(-4px); }
+    }
+
+    .anim-shake-locked {
+      animation: shakeLocked 0.3s steps(4);
+    }
+
+    /* ==========================================================================
+       4B. PAPAN JUARA SAWAH (TOP 5 HIGH SCORE LOKAL)
+       ========================================================================== */
+    .highscore-panel {
+      background: var(--wood-light);
+      border: 4px solid var(--wood-shadow);
+      box-shadow: inset 0 0 0 3px var(--paddy-gold);
+      padding: clamp(10px, 2.5vw, 14px);
+      margin: 14px auto 0;
+      max-width: 650px;
+      text-align: left;
+    }
+
+    .highscore-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 3px dashed rgba(110, 63, 28, 0.3);
+    }
+
+    .highscore-title {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.58rem, 1.9vw, 0.7rem);
+      color: var(--wood-border);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .personal-best-pill {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.46rem, 1.5vw, 0.54rem);
+      background: #d8f3dc;
+      border: 2px solid var(--grass-dark);
+      color: var(--grass-dark);
+      padding: 4px 7px;
+    }
+
+    .highscore-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: clamp(1.1rem, 3vw, 1.28rem);
+      background: #ffffff;
+      border: 2px solid var(--wood-border);
+    }
+
+    .highscore-table th {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.45rem, 1.4vw, 0.52rem);
+      color: var(--wood-border);
+      background: #faedcd;
+      text-align: left;
+      padding: 6px 6px;
+      border-bottom: 2px solid var(--wood-border);
+    }
+
+    .highscore-table td {
+      padding: 6px 6px;
+      border-bottom: 1px solid rgba(110, 63, 28, 0.16);
+      vertical-align: middle;
+    }
+
+    .highscore-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .highscore-table tr.highlight-row {
+      background: #fff3b0;
+      outline: 2px solid var(--sun-orange);
+    }
+
+    .hs-rank {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.52rem, 1.6vw, 0.62rem);
+      color: var(--accent-sky);
+      width: 44px;
+    }
+
+    .hs-rank.top-1 { color: #d97706; }
+    .hs-rank.top-2 { color: #475569; }
+    .hs-rank.top-3 { color: #b45309; }
+
+    .hs-name {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.54rem, 1.7vw, 0.66rem);
+      color: var(--text-dark);
+      letter-spacing: 0.5px;
+    }
+
+    .hs-score {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.54rem, 1.7vw, 0.66rem);
+      color: var(--grass-dark);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .hs-acc {
+      color: var(--accent-sky);
+      font-weight: bold;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .hs-date {
+      color: var(--text-muted);
+      font-size: clamp(0.95rem, 2.4vw, 1.1rem);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .highscore-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 2px dashed rgba(110, 63, 28, 0.25);
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .reset-confirm-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-pixel);
+      font-size: 0.5rem;
+      color: var(--accent-red-dark);
+    }
+
+    /* Kotak Rekor Baru di Layar Akhir */
+    .new-record-box {
+      background: #fff8d6;
+      border: 4px solid var(--sun-orange);
+      box-shadow: 0 4px 0 var(--wood-shadow);
+      padding: 12px;
+      margin: 0 auto 14px;
+      max-width: 650px;
+      text-align: center;
+    }
+
+    .new-record-title {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.6rem, 2vw, 0.76rem);
+      color: #c45100;
+      margin-bottom: 6px;
+      animation: blink 1.2s steps(2, start) infinite;
+    }
+
+    .new-record-sub {
+      font-size: clamp(1.15rem, 2.8vw, 1.3rem);
+      color: var(--text-dark);
+      margin-bottom: 10px;
+    }
+
+    .initials-form {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .initials-input {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.78rem, 2.4vw, 0.92rem);
+      text-transform: uppercase;
+      text-align: center;
+      letter-spacing: 3px;
+      width: 175px;
+      min-height: 48px;
+      padding: 10px 12px;
+      background: #ffffff;
+      color: var(--grass-dark);
+      border: 4px solid var(--wood-shadow);
+      box-shadow: inset 0 0 0 2px var(--sun-gold);
+      outline: none;
+      user-select: text;
+    }
+
+    /* ==========================================================================
+       5. HUD PERTUALANGAN & ARENA EKOSISTEM SAWAH
+       ========================================================================== */
+    .hud-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(6px, 2vw, 10px);
+      margin-bottom: 10px;
+    }
+
+    .hud-box {
+      background: var(--wood-light);
+      border: 3px solid var(--wood-shadow);
+      box-shadow: inset 0 0 0 2px var(--paddy-gold);
+      padding: clamp(6px, 1.8vw, 9px) 6px;
+      text-align: center;
+    }
+
+    .hud-label {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.45rem, 1.4vw, 0.54rem);
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .hud-value {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.64rem, 2.2vw, 0.84rem);
+      color: var(--grass-dark);
+    }
+
+    .hud-value.streak-hot {
+      color: var(--accent-pink);
+    }
+
+    /* Bar Kemajuan Petualangan */
+    .progress-track {
+      width: 100%;
+      height: 18px;
+      background: #e9d8a6;
+      border: 3px solid var(--wood-shadow);
+      padding: 2px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 10%;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--grass-bright) 0px,
+        var(--grass-bright) 12px,
+        #7ae582 12px,
+        #7ae582 16px
+      );
+      transition: width 0.3s steps(6);
+    }
+
+    /* Arena Sawah Cerah (Sprite + NYAWAMU + TANTANGAN) */
+    .battle-arena {
+      background: linear-gradient(180deg, #9be2ff 0%, #dcf7ff 66%, #6bd45b 66%, #459e38 100%);
+      border: 4px solid var(--wood-shadow);
+      box-shadow: inset 0 0 0 3px #ffffff;
+      padding: clamp(8px, 2.2vw, 12px) clamp(10px, 2.5vw, 16px);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+      min-height: 112px;
+    }
+
+    .combatant {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 2;
+      flex-shrink: 0;
+    }
+
+    .hp-label-mini {
+      font-family: var(--font-pixel);
+      font-size: 0.42rem;
+      color: var(--wood-shadow);
+      margin-bottom: 2px;
+    }
+
+    .hp-bar-wrap {
+      width: clamp(58px, 15vw, 80px);
+      height: 9px;
+      background: #2b1d0e;
+      border: 2px solid #ffffff;
+      margin-bottom: 4px;
+      padding: 1px;
+    }
+
+    .hp-bar-fill {
+      height: 100%;
+      width: 100%;
+      background: var(--grass-bright);
+      transition: width 0.25s steps(4), background-color 0.25s;
+    }
+
+    .hp-bar-fill.enemy {
+      background: var(--sun-orange);
+    }
+
+    .combatant-tag {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.42rem, 1.3vw, 0.5rem);
+      background: rgba(255, 255, 255, 0.94);
+      padding: 4px 6px;
+      border: 2px solid var(--wood-shadow);
+      margin-top: 4px;
+      color: var(--text-dark);
+      text-align: center;
+      max-width: 116px;
+      line-height: 1.25;
+    }
+
+    .arena-center-status {
+      text-align: center;
+      z-index: 2;
+      padding: 0 4px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .topic-tag {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.46rem, 1.5vw, 0.58rem);
+      color: var(--wood-shadow);
+      background: var(--sun-gold);
+      border: 2px solid var(--wood-shadow);
+      padding: 4px 7px;
+      display: inline-block;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .battle-toast {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.48rem, 1.6vw, 0.62rem);
+      min-height: 1.3em;
+      color: var(--wood-shadow);
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid var(--wood-border);
+      padding: 5px 6px;
+      line-height: 1.35;
+    }
+
+    /* Canvas Pixel Sprites */
+    canvas.pixel-sprite {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      width: clamp(48px, 12vw, 66px);
+      height: clamp(48px, 12vw, 66px);
+      animation: idleBounce 1.4s steps(2) infinite;
+    }
+
+    @keyframes idleBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+
+    /* Animasi Aksi */
+    @keyframes heroCheer {
+      0% { transform: translateX(0) scale(1); }
+      35% { transform: translateX(28px) translateY(-6px) scale(1.12); }
+      65% { transform: translateX(28px) translateY(-6px) scale(1.12); }
+      100% { transform: translateX(0) scale(1); }
+    }
+
+    @keyframes creatureDefeat {
+      0%, 100% { transform: translateX(0); filter: brightness(1); }
+      25% { transform: translateX(10px); filter: brightness(1.8); }
+      50% { transform: translateX(-10px); opacity: 0.45; }
+      75% { transform: translateX(6px); opacity: 0.9; }
+    }
+
+    @keyframes heroStumble {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px) rotate(-4deg); }
+      50% { transform: translateX(8px) rotate(4deg); }
+      75% { transform: translateX(-6px); }
+    }
+
+    @keyframes creatureHop {
+      0% { transform: translateX(0); }
+      40% { transform: translateX(-26px) translateY(-6px) scale(1.1); }
+      100% { transform: translateX(0); }
+    }
+
+    .anim-hero-cheer { animation: heroCheer 0.48s steps(5) !important; }
+    .anim-creature-defeat { animation: creatureDefeat 0.48s steps(5) !important; }
+    .anim-hero-stumble { animation: heroStumble 0.48s steps(5) !important; }
+    .anim-creature-hop { animation: creatureHop 0.48s steps(5) !important; }
+
+    /* ==========================================================================
+       6. KARTU PERTANYAAN & DIAGRAM RANTAI MAKANAN
+       ========================================================================== */
+    .question-card {
+      background: #ffffff;
+      border: 4px solid var(--wood-shadow);
+      box-shadow: inset 0 0 0 3px var(--paddy-gold);
+      padding: clamp(12px, 2.8vw, 16px) clamp(12px, 3vw, 18px);
+      margin-bottom: 12px;
+    }
+
+    .question-prompt {
+      font-size: clamp(1.3rem, 3.6vw, 1.58rem);
+      line-height: 1.3;
+      color: var(--text-dark);
+      margin-bottom: 10px;
+    }
+
+    .diagram-display {
+      background: #f3fae8;
+      border-left: 5px solid var(--grass-bright);
+      border-top: 2px solid #d5e8ba;
+      border-right: 2px solid #d5e8ba;
+      border-bottom: 2px solid #d5e8ba;
+      padding: clamp(8px, 2vw, 10px) clamp(10px, 2.5vw, 14px);
+      font-size: clamp(1.22rem, 3.5vw, 1.48rem);
+      color: var(--grass-dark);
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .chain-node {
+      background: #ffffff;
+      border: 2px solid var(--wood-border);
+      padding: 2px 8px;
+      font-weight: bold;
+      color: var(--text-dark);
+    }
+
+    .chain-node.mystery {
+      background: var(--sun-gold);
+      color: var(--wood-shadow);
+      border-style: dashed;
+    }
+
+    .chain-arrow {
+      color: var(--sun-orange);
+      font-weight: bold;
+    }
+
+    /* ==========================================================================
+       7. PILIHAN JAWABAN (4 OPSI: A, B, C, D)
+       ========================================================================== */
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: clamp(8px, 2vw, 12px);
+      margin-bottom: 12px;
+    }
+
+    .option-btn {
+      background: #ffffff;
+      border: 4px solid var(--wood-shadow);
+      box-shadow:
+        inset -3px -3px 0 rgba(110, 63, 28, 0.22),
+        inset 3px 3px 0 #ffffff,
+        0 3px 0 rgba(66, 34, 11, 0.25);
+      padding: clamp(10px, 2.2vw, 12px) clamp(10px, 2.4vw, 14px);
+      color: var(--text-dark);
+      font-family: var(--font-readable);
+      font-size: clamp(1.28rem, 3.5vw, 1.48rem);
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: transform 0.08s, background-color 0.12s;
+      min-height: 54px;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background: #fff9db;
+      border-color: var(--grass-dark);
+    }
+
+    .option-btn:active:not(:disabled) {
+      transform: translateY(3px);
+    }
+
+    .option-btn:disabled {
+      cursor: default;
+    }
+
+    .option-key {
+      font-family: var(--font-pixel);
+      font-size: 0.72rem;
+      background: var(--sun-gold);
+      color: var(--wood-shadow);
+      border: 2px solid var(--wood-shadow);
+      padding: 6px 8px;
+      flex-shrink: 0;
+    }
+
+    .option-text {
+      line-height: 1.22;
+      word-break: break-word;
+    }
+
+    /* Status Jawaban */
+    .option-btn.correct {
+      background: #52b788;
+      color: #ffffff;
+      text-shadow: 1px 1px 0 #1b4332;
+      box-shadow:
+        inset -3px -3px 0 #2d6a4f,
+        inset 3px 3px 0 #95d5b2;
+    }
+
+    .option-btn.correct .option-key {
+      background: #1b4332;
+      color: #95d5b2;
+      border-color: #1b4332;
+      text-shadow: none;
+    }
+
+    .option-btn.wrong {
+      background: var(--accent-red);
+      color: #ffffff;
+      box-shadow:
+        inset -3px -3px 0 var(--accent-red-dark),
+        inset 3px 3px 0 #ff9eb5;
+    }
+
+    .option-btn.wrong .option-key {
+      background: #590d22;
+      color: #ffccd5;
+      border-color: #590d22;
+    }
+
+    .option-btn.dimmed {
+      opacity: 0.6;
+    }
+
+    /* ==========================================================================
+       8. KOTAK PENJELASAN MATERI & TOMBOL LANJUT
+       ========================================================================== */
+    .feedback-panel {
+      display: none;
+      background: #fffdf5;
+      border: 4px solid var(--wood-shadow);
+      box-shadow: inset 0 0 0 3px var(--grass-bright);
+      padding: clamp(10px, 2.5vw, 14px) clamp(12px, 2.8vw, 16px);
+      margin-bottom: 12px;
+      animation: pixelFadeIn 0.2s steps(3);
+    }
+
+    .feedback-panel.visible {
+      display: block;
+    }
+
+    .feedback-header {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.58rem, 2vw, 0.72rem);
+      line-height: 1.35;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .feedback-header.win {
+      color: var(--grass-dark);
+    }
+
+    .feedback-header.lose {
+      color: var(--accent-red-dark);
+    }
+
+    .feedback-body {
+      font-size: clamp(1.22rem, 3.2vw, 1.38rem);
+      line-height: 1.35;
+      color: var(--text-dark);
+    }
+
+    .next-row {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    /* ==========================================================================
+       9. LAYAR HASIL AKHIR & SERTIFIKAT PENJAGA SAWAH
+       ========================================================================== */
+    .results-header {
+      text-align: center;
+      padding: 4px 0 12px;
+    }
+
+    .rank-banner {
+      display: inline-block;
+      font-family: var(--font-pixel);
+      font-size: clamp(0.54rem, 1.9vw, 0.7rem);
+      background: var(--sun-orange);
+      color: #ffffff;
+      text-shadow: 2px 2px 0 var(--wood-shadow);
+      padding: 8px 12px;
+      border: 3px solid var(--wood-shadow);
+      box-shadow: 3px 3px 0 var(--wood-shadow);
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .final-score-big {
+      font-family: var(--font-pixel);
+      font-size: clamp(1.1rem, 3.8vw, 1.85rem);
+      color: var(--grass-dark);
+      text-shadow: 2px 2px 0 var(--sun-gold);
+      margin-bottom: 8px;
+    }
+
+    .stats-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(6px, 2vw, 10px);
+      margin-bottom: 14px;
+    }
+
+    .review-section-title {
+      font-family: var(--font-pixel);
+      font-size: clamp(0.54rem, 1.8vw, 0.68rem);
+      color: var(--wood-border);
+      margin: 14px 0 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .review-list {
+      max-height: 220px;
+      overflow-y: auto;
+      background: var(--wood-light);
+      border: 4px solid var(--wood-shadow);
+      padding: 10px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .review-list::-webkit-scrollbar {
+      width: 10px;
+    }
+    .review-list::-webkit-scrollbar-track {
+      background: var(--wood-light);
+    }
+    .review-list::-webkit-scrollbar-thumb {
+      background: var(--wood-border);
+      border: 2px solid var(--wood-light);
+    }
+
+    .review-item {
+      background: #ffffff;
+      border: 2px solid var(--wood-border);
+      border-left: 6px solid var(--grass-bright);
+      padding: 10px 12px;
+      font-size: 1.24rem;
+    }
+
+    .review-item.missed {
+      border-left-color: var(--accent-red);
+    }
+
+    .review-item-top {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-pixel);
+      font-size: 0.54rem;
+      margin-bottom: 6px;
+      color: var(--text-muted);
+    }
+
+    .review-status-tag.ok { color: var(--grass-dark); }
+    .review-status-tag.no { color: var(--accent-red-dark); }
+
+    .review-q-text {
+      color: var(--text-dark);
+      margin-bottom: 4px;
+    }
+
+    .review-ans-detail {
+      font-size: 1.18rem;
+      color: var(--wood-border);
+      font-weight: bold;
+    }
+
+    .results-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* ==========================================================================
+       10. ADAPTASI LAYAR HP & TABLET
+       ========================================================================== */
+    @media (max-width: 640px) {
+      .options-grid {
+        grid-template-columns: 1fr;
+      }
+      .next-row .pixel-btn,
+      .results-actions .pixel-btn,
+      .results-actions .insert-coin-btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .hs-date {
+        display: none;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .utility-bar {
+        justify-content: center;
+      }
+      .combatant-tag {
+        max-width: 88px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Overlay CRT Opsional (Default Mati agar Cerah & Nyaman untuk Mata Anak) -->
+  <div id="crtOverlay" class="crt-overlay hidden"></div>
+
+  <main class="game-shell" role="main">
+    <!-- Bar Kontrol Atas -->
+    <header class="utility-bar">
+      <div class="arcade-badge">
+        <span class="blink-dot"></span>
+        <span id="topCreditBanner">KOIN: 00 • IPA KELAS 5 SD</span>
+      </div>
+      <div class="utility-controls">
+        <button id="crtToggleBtn" class="pixel-btn-mini" type="button" aria-label="Ganti tampilan retro">CRT: OFF</button>
+        <button id="soundToggleBtn" class="pixel-btn-mini" type="button" aria-label="Suara efek 8-bit">SFX: ON</button>
+      </div>
+    </header>
+
+    <!-- ======================================================================
+         LAYAR 1: LAYAR MULAI (START SCREEN)
+         ====================================================================== -->
+    <section id="startScreen" class="screen active" aria-labelledby="mainTitle">
+      <div class="start-hero">
+        <h1 id="mainTitle" class="game-title">PETUALANGAN<br>SAWAH 8-BIT</h1>
+        <p class="game-subtitle">IPA KELAS 5 SD: RANTAI MAKANAN</p>
+
+        <div class="stage-preview-box">
+          <div class="sprite-duo">
+            <div class="combatant">
+              <canvas id="previewHeroCanvas" class="pixel-sprite" width="16" height="16"></canvas>
+              <span id="previewHeroTag" class="combatant-tag">PETUALANG BUDI</span>
+            </div>
+            <span class="vs-badge">MISI</span>
+            <div class="combatant">
+              <canvas id="previewCreatureCanvas" class="pixel-sprite" width="16" height="16"></canvas>
+              <span class="combatant-tag">EKOSISTEM SAWAH</span>
+            </div>
+          </div>
+
+          <div class="quest-brief-card">
+            <p class="quest-brief">
+              Ayo jaga keseimbangan alam sawah! Tulis namamu, masukkan koin arcade, dan jawab <strong>10 Soal Rantai Makanan</strong> untuk meraih <strong>1000 POIN</strong>!
+            </p>
+            <div class="topic-pills">
+              <span class="topic-pill">PRODUSEN</span>
+              <span class="topic-pill">KONSUMEN I-III</span>
+              <span class="topic-pill">PENGURAI</span>
+              <span class="topic-pill">KESEIMBANGAN</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Input Nama Petualang & Lubang Koin Arcade -->
+        <div class="arcade-cabinet-controls">
+          <div class="cabinet-row">
+            <div class="name-entry-group">
+              <label for="player-name-input" class="cabinet-label">1. NAMA PETUALANG</label>
+              <input
+                id="player-name-input"
+                class="start-name-input"
+                type="text"
+                maxlength="8"
+                placeholder="BUDI"
+                aria-label="Masukkan nama petualang (maksimal 8 huruf)"
+                autocomplete="off"
+              />
+            </div>
+
+            <div class="coin-slot-group">
+              <span class="cabinet-label">2. LUBANG KOIN ARCADE</span>
+              <div class="coin-slot-housing">
+                <button id="btn-insert-coin" class="insert-coin-btn" type="button" aria-label="Masukkan Koin">
+                  <span class="pixel-coin-icon" aria-hidden="true"></span>
+                  <span>MASUKKAN KOIN</span>
+                </button>
+                <div id="coinSlitPlate" class="coin-slit-plate" title="Klik untuk masukkan koin">
+                  <div class="coin-slit-hole"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="credit-led-bar">
+            <span id="creditPromptText" class="credit-status-text">MASUKKAN KOIN DULU!</span>
+            <span id="credit-display" class="credit-counter">KOIN: 00</span>
+          </div>
+        </div>
+
+        <button id="btn-start" class="pixel-btn locked" type="button">
+          <span id="startBtnLabel">🪙 MASUKKAN KOIN DULU</span>
+        </button>
+
+        <!-- Papan Juara Sawah (Top 5 High Score Lokal) -->
+        <div class="highscore-panel" aria-label="Papan Juara Sawah">
+          <div class="highscore-header">
+            <span class="highscore-title">★ PAPAN JUARA SAWAH (TOP 5)</span>
+            <span id="startPersonalBest" class="personal-best-pill">REKOR: 900 POIN</span>
+          </div>
+          <table class="highscore-table">
+            <thead>
+              <tr>
+                <th>JUARA</th>
+                <th>PETUALANG</th>
+                <th style="text-align:center;">BENAR</th>
+                <th style="text-align:right;">POIN</th>
+                <th class="hs-date" style="text-align:right;">TGL</th>
+              </tr>
+            </thead>
+            <tbody id="startHighScoreBody"></tbody>
+          </table>
+          <div class="highscore-footer">
+            <span style="color: var(--text-muted); font-size: 1.05rem;">TERSIMPAN OTOMATIS DI PERANGKAT</span>
+            <div id="resetControlsWrap">
+              <button id="resetScoresBtn" class="pixel-btn-mini danger" type="button">HAPUS SKOR</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         LAYAR 2: LAYAR KUIS PETUALANGAN SAWAH
+         ====================================================================== -->
+    <section id="quizScreen" class="screen" aria-live="polite">
+      <!-- HUD Atas -->
+      <div class="hud-grid">
+        <div class="hud-box">
+          <span class="hud-label">SOAL KE</span>
+          <span id="hudStage" class="hud-value">1 / 10</span>
+        </div>
+        <div class="hud-box">
+          <span class="hud-label">POIN</span>
+          <span id="hudScore" class="hud-value">0 POIN</span>
+        </div>
+        <div class="hud-box">
+          <span class="hud-label">KOMBO</span>
+          <span id="hudStreak" class="hud-value">0x</span>
+        </div>
+      </div>
+
+      <!-- Bar Kemajuan -->
+      <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="10" aria-valuenow="1" id="progressTrack">
+        <div id="progressFill" class="progress-fill"></div>
+      </div>
+
+      <!-- Arena Ekosistem Sawah -->
+      <div class="battle-arena">
+        <div class="combatant">
+          <span class="hp-label-mini">NYAWAMU</span>
+          <div class="hp-bar-wrap" title="Nyawa Penjaga Sawah">
+            <div id="heroHpFill" class="hp-bar-fill"></div>
+          </div>
+          <canvas id="heroCanvas" class="pixel-sprite" width="16" height="16"></canvas>
+          <span id="hudPlayerTag" class="combatant-tag">PETUALANG BUDI</span>
+        </div>
+
+        <div class="arena-center-status">
+          <div id="topicBadge" class="topic-tag">TOPIK IPA</div>
+          <div id="battleToast" class="battle-toast">PILIH JAWABAN YANG TEPAT!</div>
+        </div>
+
+        <div class="combatant">
+          <span class="hp-label-mini">TANTANGAN</span>
+          <div class="hp-bar-wrap" title="Tantangan Ekosistem">
+            <div id="creatureHpFill" class="hp-bar-fill enemy"></div>
+          </div>
+          <canvas id="creatureCanvas" class="pixel-sprite" width="16" height="16"></canvas>
+          <span id="creatureName" class="combatant-tag">TIKUS SAWAH</span>
+        </div>
+      </div>
+
+      <!-- Kartu Pertanyaan -->
+      <article class="question-card">
+        <div id="questionPrompt" class="question-prompt">Memuat soal...</div>
+        <div id="questionDiagram" class="diagram-display"></div>
+      </article>
+
+      <!-- 4 Pilihan Jawaban (A, B, C, D) -->
+      <div id="optionsGrid" class="options-grid"></div>
+
+      <!-- Kotak Penjelasan IPA -->
+      <div id="feedbackPanel" class="feedback-panel">
+        <div id="feedbackHeader" class="feedback-header"></div>
+        <div id="feedbackBody" class="feedback-body"></div>
+      </div>
+
+      <!-- Tombol Lanjut -->
+      <div class="next-row">
+        <button id="nextBtn" class="pixel-btn sky" type="button" style="display: none;">
+          <span id="nextBtnLabel">LANJUT ▶</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         LAYAR 3: LAYAR HASIL AKHIR (END SCREEN)
+         ====================================================================== -->
+    <section id="resultsScreen" class="screen">
+      <div class="results-header">
+        <div id="rankBadge" class="rank-banner">GELAR: PAHLAWAN EKOSISTEM SAWAH</div>
+        <h2 id="finalScoreText" class="final-score-big">1000 POIN (10/10)</h2>
+        <p id="finalFlavorText" class="quest-brief" style="margin: 0 auto;">Luar biasa! Kamu sangat paham rantai makanan di sawah.</p>
+      </div>
+
+      <div class="stats-summary-grid">
+        <div class="hud-box">
+          <span class="hud-label">TOTAL POIN</span>
+          <span id="finalXp" class="hud-value">1000 POIN</span>
+        </div>
+        <div class="hud-box">
+          <span class="hud-label">KOMBO TERBAIK</span>
+          <span id="finalMaxStreak" class="hud-value">10x</span>
+        </div>
+        <div class="hud-box">
+          <span class="hud-label">JAWABAN BENAR</span>
+          <span id="finalAccuracy" class="hud-value">10 / 10</span>
+        </div>
+      </div>
+
+      <!-- Pemberitahuan Rekor Baru di Papan Juara -->
+      <div id="newRecordBox" class="new-record-box" style="display: none;">
+        <div id="newRecordTitle" class="new-record-title">★ SKORMU MASUK PAPAN JUARA SAWAH! ★</div>
+        <p class="new-record-sub">Tercatat atas nama <strong id="recordedNameDisplay" style="color:var(--grass-dark);">BUDI</strong>! Mau ubah nama di papan juara?</p>
+        <form id="saveScoreForm" class="initials-form">
+          <input
+            id="playerInitialsInput"
+            class="initials-input"
+            type="text"
+            minlength="1"
+            maxlength="8"
+            placeholder="BUDI"
+            aria-label="Ubah nama juara (maksimal 8 huruf)"
+            autocomplete="off"
+          />
+          <button id="saveScoreBtn" class="pixel-btn gold" type="submit">
+            <span>SIMPAN NAMA</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Papan Juara Sawah di Layar Akhir -->
+      <div class="highscore-panel" style="margin-bottom: 14px;" aria-label="Papan Juara Sawah Terbaru">
+        <div class="highscore-header">
+          <span class="highscore-title">★ PAPAN JUARA SAWAH (TOP 5)</span>
+          <span id="endPersonalBest" class="personal-best-pill">REKOR: 900 POIN</span>
+        </div>
+        <table class="highscore-table">
+          <thead>
+            <tr>
+              <th>JUARA</th>
+              <th>PETUALANG</th>
+              <th style="text-align:center;">BENAR</th>
+              <th style="text-align:right;">POIN</th>
+              <th class="hs-date" style="text-align:right;">TGL</th>
+            </tr>
+          </thead>
+          <tbody id="endHighScoreBody"></tbody>
+        </table>
+      </div>
+
+      <div class="review-section-title">
+        <span>CATATAN BELAJAR &amp; PEMBAHASAN</span>
+        <span>GESER KE BAWAH</span>
+      </div>
+
+      <div id="reviewList" class="review-list"></div>
+
+      <div class="results-actions">
+        <button id="endInsertCoinBtn" class="insert-coin-btn" type="button" style="min-height:50px; padding:12px 16px;">
+          <span class="pixel-coin-icon" aria-hidden="true"></span>
+          <span>MASUKKAN KOIN (<span id="endCreditCount">00</span>)</span>
+        </button>
+        <button id="playAgainBtn" class="pixel-btn" type="button">
+          <span id="playAgainBtnLabel">↻ MAIN LAGI (1 KOIN)</span>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    /* ========================================================================
+       1. WEB AUDIO API 8-BIT SYNTHESIZER (RAMAH ANAK, TANPA FILE EKSTERNAL)
+       ======================================================================== */
+    class RetroNatureAudio {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+
+      init() {
+        try {
+          if (!this.ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) {
+              this.ctx = new AudioCtx();
+            }
+          }
+          if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume().catch(() => {});
+          }
+        } catch (err) {
+          // Abaikan jika browser memblokir AudioContext
+        }
+      }
+
+      playTone(freq, type, duration, delay = 0, gainVal = 0.11) {
+        if (this.muted) return;
+        try {
+          this.init();
+          if (!this.ctx) return;
+
+          const now = this.ctx.currentTime + delay;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, now);
+
+          gain.gain.setValueAtTime(gainVal, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start(now);
+          osc.stop(now + duration);
+        } catch (err) {
+          // Pastikan audio tidak pernah mengganggu jalannya game
+        }
+      }
+
+      blip() {
+        this.playTone(587.33, 'triangle', 0.08, 0, 0.1);
+      }
+
+      coin() {
+        // Bunyi koin arcade ceria: B5 -> E6
+        this.playTone(987.77, 'square', 0.08, 0, 0.12);
+        this.playTone(1318.51, 'square', 0.28, 0.075, 0.12);
+      }
+
+      lockedBuzz() {
+        this.playTone(196, 'triangle', 0.12, 0, 0.11);
+      }
+
+      startFanfare() {
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((n, idx) => {
+          this.playTone(n, 'triangle', 0.12, idx * 0.08, 0.12);
+        });
+      }
+
+      correct() {
+        // Melodi lonceng ceria saat jawaban benar
+        this.playTone(523.25, 'triangle', 0.1, 0, 0.13);
+        this.playTone(659.25, 'triangle', 0.1, 0.08, 0.13);
+        this.playTone(783.99, 'square', 0.18, 0.16, 0.11);
+      }
+
+      wrong() {
+        // Bunyi lembut saat jawaban kurang tepat (tidak menakutkan untuk anak)
+        this.playTone(293.66, 'triangle', 0.15, 0, 0.12);
+        this.playTone(246.94, 'triangle', 0.22, 0.13, 0.12);
+      }
+
+      victory() {
+        const melody = [
+          { f: 523.25, d: 0.11, t: 0.00 },
+          { f: 659.25, d: 0.11, t: 0.12 },
+          { f: 783.99, d: 0.11, t: 0.24 },
+          { f: 1046.50, d: 0.26, t: 0.36 },
+          { f: 783.99, d: 0.14, t: 0.65 },
+          { f: 1046.50, d: 0.40, t: 0.82 }
+        ];
+        melody.forEach(m => this.playTone(m.f, 'triangle', m.d, m.t, 0.13));
+      }
+    }
+
+    const sfx = new RetroNatureAudio();
+
+    /* ========================================================================
+       2. RENDERER SPRITE PIXEL ART 16x16 DI CANVAS (TEMA SAWAH)
+       ======================================================================== */
+    const SPRITE_PALETTE = {
+      '.': null,
+      'k': '#2b1d0e', // Garis tepi cokelat tua ramah mata
+      'y': '#ffd93d', // Caping anyaman bambu kuning
+      'o': '#e09f3e', // Bayangan caping bambu
+      's': '#ffcdb2', // Kulit wajah anak
+      'g': '#58b848', // Rompi hijau penjaga sawah
+      'd': '#2d6a4f', // Hijau tua
+      'b': '#3a86ff', // Celana biru
+      'm': '#9e9e9e', // Bulu tikus sawah abu-abu
+      'l': '#d6d6d6', // Perut tikus abu muda
+      'p': '#ffafcc', // Telinga & hidung tikus merah muda
+      'u': '#6a994e', // Sisik ular sawah hijau zaitun
+      'v': '#a7c957', // Corak ular hijau muda
+      'r': '#e63946', // Lidah ular merah
+      'e': '#7f4f24', // Bulu elang jawa cokelat
+      'c': '#b08968', // Sayap elang cokelat muda
+      'w': '#ffffff'  // Putih mata / kepala elang
+    };
+
+    const SPRITE_MAPS = {
+      // Penjaga Sawah memakai caping petani tradisional & rompi hijau
+      hero: [
+        '......yyyy......',
+        '....yyyyyyyy....',
+        '..yyyyooooyyyy..',
+        '.yyyyoooooooyyy.',
+        '..kkkkkkkkkkkk..',
+        '....kssssssk....',
+        '....kskkksk.....',
+        '.....kssssk.....',
+        '...ggggwwgggg...',
+        '..sggggwwggggs..',
+        '..sggdggggdggs..',
+        '..k..gggggg..k..',
+        '....bbbbbbbb....',
+        '....bbb..bbb....',
+        '....kk....kk....',
+        '...kkk....kkk...'
+      ],
+      // Tikus Sawah (Konsumen Tingkat I)
+      tikus: [
+        '................',
+        '................',
+        '...kkk....kkk...',
+        '..kpppk..kpppk..',
+        '..kppmmkkmmppk..',
+        '...kmmmmmmmmk...',
+        '..kmmkmmmmkmmk..',
+        '..kmmmmppmmmmk..',
+        '...kmmllllmmk...',
+        '..kmmmmllllmmk..',
+        '..kmmmmmmmmmmk.k',
+        '..kmmmmmmmmmmkk.',
+        '...kmmmmmmmmk...',
+        '...kk......kk...',
+        '................',
+        '................'
+      ],
+      // Ular Sawah (Konsumen Tingkat II)
+      ular: [
+        '................',
+        '.....kkkkkk.....',
+        '....kuuuuuuk....',
+        '...kuwkuuukuk...',
+        '...kuuuuuuuuk.rr',
+        '....kkuuuuukkr..',
+        '......kuvvuk....',
+        '.....kuvvvuk....',
+        '....kuvvuuuk....',
+        '....kuuuuvvuk...',
+        '.....kkuuvvvuk..',
+        '.......kuvvvuk..',
+        '....kkkuvvuuuk..',
+        '...kuuuuuuuuk...',
+        '....kkkkkkkk....',
+        '................'
+      ],
+      // Elang Jawa (Konsumen Puncak)
+      elang: [
+        '......kkkk......',
+        '.....kwwwwk.....',
+        '....kwwkwwwk....',
+        '....kwwyyyyk....',
+        '.kkk.keeeeek.kkk',
+        'kccckeeeeeeeekcc',
+        'kcceeeeeeeeeeecc',
+        'kceeewwwwwwweeec',
+        '.kceeewwwwweeek.',
+        '..kkeeeeeeeeek..',
+        '....keeeeeek....',
+        '.....keekek.....',
+        '.....yy..yy.....',
+        '....yyy..yyy....',
+        '................',
+        '................'
+      ]
+    };
+
+    function drawSprite(canvas, spriteKey) {
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      const rows = SPRITE_MAPS[spriteKey] || SPRITE_MAPS.tikus;
+      ctx.clearRect(0, 0, 16, 16);
+      for (let y = 0; y < 16; y++) {
+        const row = rows[y];
+        for (let x = 0; x < 16; x++) {
+          const ch = row[x];
+          const color = SPRITE_PALETTE[ch];
+          if (color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, 1, 1);
+          }
+        }
+      }
+    }
+
+    /* ========================================================================
+       3. BANK 10 SOAL IPA KELAS 5 SD: RANTAI MAKANAN DI SAWAH
+       ======================================================================== */
+    const QUESTIONS = [
+      {
+        id: 1,
+        topic: "URUTAN RANTAI MAKANAN",
+        creatureName: "TIKUS SAWAH",
+        creatureSprite: "tikus",
+        prompt: "Perhatikan rantai makanan di sawah berikut! Makhluk hidup apa yang tepat untuk melengkapi bagian [ ? ]?",
+        diagramHTML: `
+          <span class="chain-node">Padi</span>
+          <span class="chain-arrow">→</span>
+          <span class="chain-node mystery">[ ? ]</span>
+          <span class="chain-arrow">→</span>
+          <span class="chain-node">Ular Sawah</span>
+          <span class="chain-arrow">→</span>
+          <span class="chain-node">Elang</span>
+        `,
+        options: [
+          { text: "Tikus Sawah", isCorrect: true },
+          { text: "Harimau", isCorrect: false },
+          { text: "Ikan Hiu", isCorrect: false },
+          { text: "Jamur", isCorrect: false }
+        ],
+        explanation: "Urutan rantai makanan di sawah yang benar adalah Padi (produsen) dimakan Tikus Sawah (konsumen I), lalu Tikus dimakan Ular Sawah, dan Ular dimakan Elang."
+      },
+      {
+        id: 2,
+        topic: "PERAN PRODUSEN",
+        creatureName: "TIKUS SAWAH",
+        creatureSprite: "tikus",
+        prompt: "Dalam ekosistem sawah, tanaman padi berperan sebagai produsen karena mampu...",
+        diagramHTML: `
+          <span class="chain-node">Cahaya Matahari</span>
+          <span class="chain-arrow">+</span>
+          <span class="chain-node">Tanaman Padi (Produsen)</span>
+        `,
+        options: [
+          { text: "Membuat makanan sendiri lewat fotosintesis", isCorrect: true },
+          { text: "Memakan serangga dan ulat kecil", isCorrect: false },
+          { text: "Menguraikan bangkai hewan yang mati", isCorrect: false },
+          { text: "Berburu tikus pada malam hari", isCorrect: false }
+        ],
+        explanation: "Tumbuhan hijau seperti padi disebut produsen karena memiliki klorofil untuk membuat makanannya sendiri melalui proses fotosintesis dengan bantuan cahaya matahari."
+      },
+      {
+        id: 3,
+        topic: "KONSUMEN TINGKAT I",
+        creatureName: "TIKUS SAWAH",
+        creatureSprite: "tikus",
+        prompt: "Hewan pemakan tumbuhan (herbivora) seperti belalang dan tikus di sawah menempati kedudukan sebagai...",
+        diagramHTML: `
+          <span class="chain-node">Padi</span>
+          <span class="chain-arrow">→</span>
+          <span class="chain-node mystery">Belalang / Tikus</span>
+        `,
+        options: [
+          { text: "Konsumen Tingkat I", isCorrect: true },
+          { text: "Produsen Utama", isCorrect: false },
+          { text: "Konsumen Puncak", isCorrect: false },
+          { text: "Pengurai (Dekomposer)", isCorrect: false }
+        ],
+        explanation: "Hewan herbivora yang memakan langsung produsen (tanaman padi) disebut Konsumen Tingkat I (konsumen primer)."
+      },
+      {
+        id: 4,
+        topic: "KONSUMEN TINGKAT II",
+        creatureName: "ULAR SAWAH",
+        creatureSprite: "ular",
+        prompt: "Perhatikan rantai makanan: Padi → Belalang → Katak → Ular. Pada rantai makanan tersebut, katak berperan sebagai...",
+        diagramHTML: `
+          <span class="chain-node">Padi</span>
+          <span class="chain-arrow">→</span>
+          <span class="chain-node">Belalang</span>
+          <span class="chain-arrow">→</span>
+          <span class="chain-node mystery">Katak</span>
+          <span class="chain-arrow">→</span>
+          <span class="chain-node">Ular</span>
+        `,
+        options: [
+          { text: "Konsumen Tingkat II", isCorrect: true },
+          { text: "Konsumen Tingkat I", isCorrect: false },
+          { text: "Produsen", isCorrect: false },
+          { text: "Pengurai", isCorrect: false }
+        ],
+        explanation: "Padi adalah produsen, belalang adalah konsumen tingkat I, dan katak yang memakan belalang berperan sebagai Konsumen Tingkat II."
+      },
+      {
+        id: 5,
+        topic: "SUMBER ENERGI UTAMA",
+        creatureName: "ULAR SAWAH",
+        creatureSprite: "ular",
+        prompt: "Sumber energi utama yang mengawali seluruh perpindahan energi dalam rantai makanan di sawah adalah...",
+        diagramHTML: `
+          <span class="chain-node mystery">[ Sumber Energi ]</span>
+          <span class="chain-arrow">→</span>
+          <span class="chain-node">Padi</span>
+          <span class="chain-arrow">→</span>
+          <span class="chain-node">Tikus</span>
+          <span class="chain-arrow">→</span>
+          <span class="chain-node">Ular</span>
+        `,
+        options: [
+          { text: "Cahaya Matahari", isCorrect: true },
+          { text: "Air Irigasi Sawah", isCorrect: false },
+          { text: "Pupuk Kompos", isCorrect: false },
+          { text: "Angin Sawah", isCorrect: false }
+        ],
+        explanation: "Cahaya matahari merupakan sumber energi utama di bumi yang digunakan oleh tanaman padi (produsen) untuk berfotosintesis."
+      },
+      {
+        id: 6,
+        topic: "PERAN PENGURAI",
+        creatureName: "ULAR SAWAH",
+        creatureSprite: "ular",
+        prompt: "Ketika burung elang mati, tubuhnya akan diuraikan oleh jamur dan bakteri menjadi zat hara yang menyuburkan tanah. Jamur dan bakteri berperan sebagai...",
+        diagramHTML: `
+          <span class="chain-node">Elang Mati</span>
+          <span class="chain-arrow">→</span>
+          <span class="chain-node mystery">Jamur &amp; Bakteri</span>
+          <span class="chain-arrow">→</span>
+          <span class="chain-node">Zat Hara Tanah</span>
+        `,
+        options: [
+          { text: "Pengurai (Dekomposer)", isCorrect: true },
+          { text: "Konsumen Tingkat I", isCorrect: false },
+          { text: "Konsumen Tingkat III", isCorrect: false },
+          { text: "Produsen", isCorrect: false }
+        ],
+        explanation: "Jamur dan bakteri adalah pengurai (dekomposer) yang menguraikan sisa makhluk hidup mati menjadi nutrisi/zat hara yang diserap kembali oleh tanaman padi."
+      },
+      {
+        id: 7,
+        topic: "KONSUMEN PUNCAK",
+        creatureName: "ULAR SAWAH",
+        creatureSprite: "ular",
+        prompt: "Pada rantai makanan Padi → Tikus → Ular Sawah → Burung Elang, makhluk hidup yang menjadi konsumen puncak adalah...",
+        diagramHTML: `
+          <span class="chain-node">Padi</span>
+          <span class="chain-arrow">→</span>
+          <span class="chain-node">Tikus</span>
+          <span class="chain-arrow">→</span>
+          <span class="chain-node">Ular</span>
+          <span class="chain-arrow">→</span>
+          <span class="chain-node mystery">Burung Elang</span>
+        `,
+        options: [
+          { text: "Burung Elang", isCorrect: true },
+          { text: "Ular Sawah", isCorrect: false },
+          { text: "Tikus Sawah", isCorrect: false },
+          { text: "Tanaman Padi", isCorrect: false }
+        ],
+        explanation: "Burung Elang disebut konsumen puncak (konsumen tingkat III pada rantai ini) karena tidak ada hewan lain di sawah yang memangsanya."
+      },
+      {
+        id: 8,
+        topic: "KESEIMBANGAN EKOSISTEM",
+        creatureName: "ELANG JAWA",
+        creatureSprite: "elang",
+        prompt: "Apa yang akan terjadi di sawah jika manusia memburu ular sawah secara besar-besaran hingga populasinya menurun drastis?",
+        diagramHTML: `
+          <span class="chain-node">Padi</span>
+          <span class="chain-arrow">→</span>
+          <span class="chain-node">Tikus</span>
+          <span class="chain-arrow">→</span>
+          <span class="chain-node mystery">Ular Berkurang!</span>
+        `,
+        options: [
+          { text: "Populasi tikus meningkat pesat dan panen padi rusak", isCorrect: true },
+          { text: "Hasil panen padi meningkat melimpah", isCorrect: false },
+          { text: "Populasi tikus ikut musnah seluruhnya", isCorrect: false },
+          { text: "Burung elang memakan tanaman padi", isCorrect: false }
+        ],
+        explanation: "Jika ular sawah berkurang, pemangsa tikus hilang. Akibatnya populasi tikus melonjak tajam dan memakan banyak tanaman padi sehingga petani gagal panen."
+      },
+      {
+        id: 9,
+        topic: "DAMPAK RANTAI MAKANAN",
+        creatureName: "ELANG JAWA",
+        creatureSprite: "elang",
+        prompt: "Di sebuah sawah terdapat rantai makanan: Padi → Belalang → Katak → Ular. Jika populasi katak berkurang karena ditangkap, maka...",
+        diagramHTML: `
+          <span class="chain-node">Padi</span>
+          <span class="chain-arrow">→</span>
+          <span class="chain-node">Belalang</span>
+          <span class="chain-arrow">→</span>
+          <span class="chain-node mystery">Katak Berkurang</span>
+          <span class="chain-arrow">→</span>
+          <span class="chain-node">Ular</span>
+        `,
+        options: [
+          { text: "Populasi belalang meningkat dan populasi ular menurun", isCorrect: true },
+          { text: "Populasi belalang menurun dan padi tumbuh subur", isCorrect: false },
+          { text: "Populasi ular bertambah sangat banyak", isCorrect: false },
+          { text: "Semua belalang berubah menjadi pengurai", isCorrect: false }
+        ],
+        explanation: "Jika katak berkurang, belalang tidak memiliki pemangsa sehingga jumlahnya meningkat, sedangkan ular kekurangan makanan sehingga populasinya menurun."
+      },
+      {
+        id: 10,
+        topic: "JARING-JARING MAKANAN",
+        creatureName: "ELANG JAWA",
+        creatureSprite: "elang",
+        prompt: "Di ekosistem sawah, padi tidak hanya dimakan tikus, tetapi juga belalang dan burung pipit. Kumpulan beberapa rantai makanan yang saling berhubungan disebut...",
+        diagramHTML: `
+          <span class="chain-node">Padi</span>
+          <span class="chain-arrow">⇉</span>
+          <span class="chain-node">Tikus / Belalang / Pipit</span>
+          <span class="chain-arrow">⇉</span>
+          <span class="chain-node">Ular &amp; Elang</span>
+        `,
+        options: [
+          { text: "Jaring-jaring makanan", isCorrect: true },
+          { text: "Daur air sawah", isCorrect: false },
+          { text: "Simbiosis mutualisme", isCorrect: false },
+          { text: "Metamorfosis sempurna", isCorrect: false }
+        ],
+        explanation: "Gabungan dari beberapa rantai makanan yang saling terhubung dan tumpang tindih dalam satu ekosistem disebut jaring-jaring makanan."
+      }
+    ];
+
+    /* ========================================================================
+       4. PENYIMPANAN SKOR TERTINGGI LOKAL (localStorage)
+       ======================================================================== */
+    const STORAGE_KEY = 'petualangan_sawah_highscores_v1';
+    const PLAYER_NAME_KEY = 'petualangan_sawah_player_name_v1';
+    const DEFAULT_HIGHSCORES = [
+      { id: 'def-1', name: 'SITI', score: 900, accuracy: '9/10', rank: 'PAHLAWAN SAWAH', date: 'JUARA' },
+      { id: 'def-2', name: 'BIMA', score: 800, accuracy: '8/10', rank: 'PENJAGA PADI', date: 'JUARA' },
+      { id: 'def-3', name: 'RARA', score: 700, accuracy: '7/10', rank: 'SAHABAT ALAM', date: 'JUARA' }
+    ];
+
+    function formatShortDate(dateObj = new Date()) {
+      const months = ['JAN', 'FEB', 'MAR', 'APR', 'MEI', 'JUN', 'JUL', 'AGU', 'SEP', 'OKT', 'NOV', 'DES'];
+      return `${String(dateObj.getDate()).padStart(2, '0')} ${months[dateObj.getMonth()]}`;
+    }
+
+    function loadHighScores() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_HIGHSCORES));
+          return DEFAULT_HIGHSCORES.slice();
+        }
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed) || parsed.length === 0) {
+          return [];
+        }
+        return parsed
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 5);
+      } catch (err) {
+        return DEFAULT_HIGHSCORES.slice();
+      }
+    }
+
+    function saveHighScoresList(scores) {
+      try {
+        const trimmed = scores.sort((a, b) => b.score - a.score).slice(0, 5);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
+      } catch (err) {
+        // Abaikan jika penyimpanan terbatas
+      }
+    }
+
+    function resetHighScoresToDefault() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_HIGHSCORES));
+      } catch (err) {
+        // Abaikan
+      }
+    }
+
+    function qualifiesForTop5(scoreVal) {
+      if (scoreVal <= 0) return false;
+      const list = loadHighScores();
+      if (list.length < 5) return true;
+      const lowestTopScore = list[list.length - 1].score;
+      return scoreVal > lowestTopScore;
+    }
+
+    function sanitizePlayerName(raw) {
+      const cleaned = String(raw || '')
+        .trim()
+        .toUpperCase()
+        .replace(/[^A-Z0-9_-]/g, '')
+        .slice(0, 8);
+      return cleaned || 'BUDI';
+    }
+
+    function loadSavedPlayerName() {
+      try {
+        return localStorage.getItem(PLAYER_NAME_KEY) || '';
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function persistPlayerName(name) {
+      try {
+        localStorage.setItem(PLAYER_NAME_KEY, name);
+      } catch (e) {
+        // Abaikan
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function renderHighScoreTable(tbodyEl, bestBadgeEl, highlightId = null) {
+      if (!tbodyEl) return;
+      const scores = loadHighScores();
+      const topScore = scores.length > 0 ? scores[0].score : 0;
+
+      if (bestBadgeEl) {
+        bestBadgeEl.textContent = `REKOR: ${topScore} POIN`;
+      }
+
+      tbodyEl.innerHTML = '';
+      if (scores.length === 0) {
+        tbodyEl.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align:center; color: var(--text-muted); padding: 12px;">
+              BELUM ADA REKOR — JADILAH JUARA PERTAMA!
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      const rankLabels = ['#1', '#2', '#3', '#4', '#5'];
+      scores.forEach((entry, idx) => {
+        const tr = document.createElement('tr');
+        if (highlightId && entry.id === highlightId) {
+          tr.classList.add('highlight-row');
+        }
+        const rankClass = idx === 0 ? 'top-1' : idx === 1 ? 'top-2' : idx === 2 ? 'top-3' : '';
+        tr.innerHTML = `
+          <td class="hs-rank ${rankClass}">${rankLabels[idx] || `#${idx + 1}`}</td>
+          <td class="hs-name">${escapeHtml(entry.name)}</td>
+          <td class="hs-acc">${escapeHtml(entry.accuracy)}</td>
+          <td class="hs-score">${entry.score} POIN</td>
+          <td class="hs-date">${escapeHtml(entry.date || '')}</td>
+        `;
+        tbodyEl.appendChild(tr);
+      });
+    }
+
+    /* ========================================================================
+       5. STATE APLIKASI & REFERENSI ELEMEN DOM
+       ======================================================================== */
+    const state = {
+      credits: 0,
+      playerName: 'BUDI',
+      currentIndex: 0,
+      score: 0,       // Jumlah jawaban benar (0..10)
+      points: 0,      // Total poin (0..1000)
+      streak: 0,
+      maxStreak: 0,
+      heroHp: 100,
+      answered: false,
+      savedRunId: null,
+      history: []
+    };
+
+    const dom = {
+      topCreditBanner: document.getElementById('topCreditBanner'),
+      crtOverlay: document.getElementById('crtOverlay'),
+      crtToggleBtn: document.getElementById('crtToggleBtn'),
+      soundToggleBtn: document.getElementById('soundToggleBtn'),
+
+      startScreen: document.getElementById('startScreen'),
+      quizScreen: document.getElementById('quizScreen'),
+      resultsScreen: document.getElementById('resultsScreen'),
+
+      previewHeroCanvas: document.getElementById('previewHeroCanvas'),
+      previewHeroTag: document.getElementById('previewHeroTag'),
+      previewCreatureCanvas: document.getElementById('previewCreatureCanvas'),
+      startPlayerNameInput: document.getElementById('player-name-input'),
+      insertCoinBtn: document.getElementById('btn-insert-coin'),
+      coinSlitPlate: document.getElementById('coinSlitPlate'),
+      creditPromptText: document.getElementById('creditPromptText'),
+      creditCounterText: document.getElementById('credit-display'),
+      startBtn: document.getElementById('btn-start'),
+      startBtnLabel: document.getElementById('startBtnLabel'),
+      startHighScoreBody: document.getElementById('startHighScoreBody'),
+      startPersonalBest: document.getElementById('startPersonalBest'),
+      resetControlsWrap: document.getElementById('resetControlsWrap'),
+
+      hudStage: document.getElementById('hudStage'),
+      hudScore: document.getElementById('hudScore'),
+      hudStreak: document.getElementById('hudStreak'),
+      progressTrack: document.getElementById('progressTrack'),
+      progressFill: document.getElementById('progressFill'),
+
+      heroHpFill: document.getElementById('heroHpFill'),
+      creatureHpFill: document.getElementById('creatureHpFill'),
+      heroCanvas: document.getElementById('heroCanvas'),
+      hudPlayerTag: document.getElementById('hudPlayerTag'),
+      creatureCanvas: document.getElementById('creatureCanvas'),
+      creatureName: document.getElementById('creatureName'),
+      topicBadge: document.getElementById('topicBadge'),
+      battleToast: document.getElementById('battleToast'),
+
+      questionPrompt: document.getElementById('questionPrompt'),
+      questionDiagram: document.getElementById('questionDiagram'),
+      optionsGrid: document.getElementById('optionsGrid'),
+
+      feedbackPanel: document.getElementById('feedbackPanel'),
+      feedbackHeader: document.getElementById('feedbackHeader'),
+      feedbackBody: document.getElementById('feedbackBody'),
+      nextBtn: document.getElementById('nextBtn'),
+      nextBtnLabel: document.getElementById('nextBtnLabel'),
+
+      rankBadge: document.getElementById('rankBadge'),
+      finalScoreText: document.getElementById('finalScoreText'),
+      finalFlavorText: document.getElementById('finalFlavorText'),
+      finalXp: document.getElementById('finalXp'),
+      finalMaxStreak: document.getElementById('finalMaxStreak'),
+      finalAccuracy: document.getElementById('finalAccuracy'),
+
+      newRecordBox: document.getElementById('newRecordBox'),
+      newRecordTitle: document.getElementById('newRecordTitle'),
+      recordedNameDisplay: document.getElementById('recordedNameDisplay'),
+      saveScoreForm: document.getElementById('saveScoreForm'),
+      playerInitialsInput: document.getElementById('playerInitialsInput'),
+      endHighScoreBody: document.getElementById('endHighScoreBody'),
+      endPersonalBest: document.getElementById('endPersonalBest'),
+
+      reviewList: document.getElementById('reviewList'),
+      endInsertCoinBtn: document.getElementById('endInsertCoinBtn'),
+      endCreditCount: document.getElementById('endCreditCount'),
+      playAgainBtn: document.getElementById('playAgainBtn'),
+      playAgainBtnLabel: document.getElementById('playAgainBtnLabel')
+    };
+
+    /* ========================================================================
+       6. UTILITAS & MEKANIK KOIN ARCADE
+       ======================================================================== */
+    function shuffleArray(arr) {
+      const copy = arr.slice();
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function showScreen(screenEl) {
+      [dom.startScreen, dom.quizScreen, dom.resultsScreen].forEach(s => s.classList.remove('active'));
+      screenEl.classList.add('active');
+    }
+
+    function triggerArenaAnimation(isCorrect) {
+      dom.heroCanvas.classList.remove('anim-hero-cheer', 'anim-hero-stumble');
+      dom.creatureCanvas.classList.remove('anim-creature-defeat', 'anim-creature-hop');
+      void dom.heroCanvas.offsetWidth;
+
+      if (isCorrect) {
+        dom.heroCanvas.classList.add('anim-hero-cheer');
+        dom.creatureCanvas.classList.add('anim-creature-defeat');
+      } else {
+        dom.creatureCanvas.classList.add('anim-creature-hop');
+        dom.heroCanvas.classList.add('anim-hero-stumble');
+      }
+    }
+
+    function updateCreditUI(flash = false) {
+      const formatted = String(state.credits).padStart(2, '0');
+      dom.creditCounterText.textContent = `KOIN: ${formatted}`;
+      dom.topCreditBanner.textContent = `KOIN: ${formatted} • IPA KELAS 5 SD`;
+      if (dom.endCreditCount) {
+        dom.endCreditCount.textContent = formatted;
+      }
+
+      if (flash) {
+        dom.creditCounterText.classList.remove('credit-flash');
+        void dom.creditCounterText.offsetWidth;
+        dom.creditCounterText.classList.add('credit-flash');
+      }
+
+      if (state.credits > 0) {
+        dom.creditPromptText.textContent = 'KOIN DITERIMA! AYO MULAI!';
+        dom.creditPromptText.classList.add('ready');
+        dom.startBtn.classList.remove('locked');
+        dom.startBtnLabel.textContent = '▶ MULAI MAIN!';
+        dom.insertCoinBtn.classList.remove('highlight-nudge');
+
+        dom.playAgainBtn.classList.remove('locked');
+        dom.playAgainBtnLabel.textContent = '↻ MAIN LAGI (1 KOIN)';
+      } else {
+        dom.creditPromptText.textContent = 'MASUKKAN KOIN DULU!';
+        dom.creditPromptText.classList.remove('ready');
+        dom.startBtn.classList.add('locked');
+        dom.startBtnLabel.textContent = '🪙 MASUKKAN KOIN DULU';
+
+        dom.playAgainBtn.classList.add('locked');
+        dom.playAgainBtnLabel.textContent = '🪙 MASUKKAN KOIN DULU';
+      }
+    }
+
+    function insertCoin(animateSlot = true) {
+      if (state.credits < 9) {
+        state.credits += 1;
+      }
+      updateCreditUI(true);
+      sfx.coin();
+
+      if (animateSlot && dom.coinSlitPlate) {
+        const coinEl = document.createElement('span');
+        coinEl.className = 'pixel-coin-icon dropping-coin';
+        dom.coinSlitPlate.appendChild(coinEl);
+        setTimeout(() => coinEl.remove(), 380);
+      }
+    }
+
+    function syncPlayerNameFromInput() {
+      const name = sanitizePlayerName(dom.startPlayerNameInput.value);
+      state.playerName = name;
+      persistPlayerName(name);
+      if (dom.previewHeroTag) {
+        dom.previewHeroTag.textContent = `PETUALANG ${name}`;
+      }
+      if (dom.hudPlayerTag) {
+        dom.hudPlayerTag.textContent = `PETUALANG ${name}`;
+      }
+    }
+
+    /* ========================================================================
+       7. LOGIKA UTAMA KUIS RANTAI MAKANAN
+       ======================================================================== */
+    function startNewQuest() {
+      if (state.credits <= 0) {
+        sfx.lockedBuzz();
+        dom.creditPromptText.textContent = 'KLIK MASUKKAN KOIN!';
+        dom.creditPromptText.classList.remove('ready');
+        dom.insertCoinBtn.classList.add('highlight-nudge');
+        const targetBtn = dom.startScreen.classList.contains('active') ? dom.startBtn : dom.playAgainBtn;
+        targetBtn.classList.remove('anim-shake-locked');
+        void targetBtn.offsetWidth;
+        targetBtn.classList.add('anim-shake-locked');
+        return;
+      }
+
+      // Gunakan 1 koin & simpan nama petualang
+      state.credits -= 1;
+      updateCreditUI(false);
+      syncPlayerNameFromInput();
+
+      state.currentIndex = 0;
+      state.score = 0;
+      state.points = 0;
+      state.streak = 0;
+      state.maxStreak = 0;
+      state.heroHp = 100;
+      state.answered = false;
+      state.savedRunId = null;
+      state.history = [];
+
+      sfx.startFanfare();
+      showScreen(dom.quizScreen);
+      renderQuestion();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateHud() {
+      const qNum = state.currentIndex + 1;
+      const total = QUESTIONS.length;
+      dom.hudStage.textContent = `${qNum} / ${total}`;
+      dom.hudScore.textContent = `${state.points} POIN`;
+      dom.hudStreak.textContent = `${state.streak}x`;
+
+      if (state.streak >= 3) {
+        dom.hudStreak.classList.add('streak-hot');
+      } else {
+        dom.hudStreak.classList.remove('streak-hot');
+      }
+
+      // Perbarui bar NYAWAMU
+      dom.heroHpFill.style.width = `${Math.max(15, state.heroHp)}%`;
+      if (state.heroHp <= 35) {
+        dom.heroHpFill.style.backgroundColor = 'var(--accent-red)';
+      } else if (state.heroHp <= 65) {
+        dom.heroHpFill.style.backgroundColor = 'var(--sun-orange)';
+      } else {
+        dom.heroHpFill.style.backgroundColor = 'var(--grass-bright)';
+      }
+
+      const pct = (qNum / total) * 100;
+      dom.progressFill.style.width = `${pct}%`;
+      dom.progressTrack.setAttribute('aria-valuenow', String(qNum));
+    }
+
+    function renderQuestion() {
+      state.answered = false;
+      const q = QUESTIONS[state.currentIndex];
+
+      updateHud();
+
+      // Reset bar TANTANGAN penuh untuk soal baru
+      dom.creatureHpFill.style.width = '100%';
+
+      // Gambar sprite Penjaga Sawah & hewan sawah
+      drawSprite(dom.heroCanvas, 'hero');
+      drawSprite(dom.creatureCanvas, q.creatureSprite);
+      dom.creatureName.textContent = q.creatureName;
+      dom.topicBadge.textContent = q.topic;
+      dom.battleToast.textContent = "PILIH JAWABAN YANG TEPAT!";
+      dom.battleToast.style.color = "var(--wood-shadow)";
+
+      // Tampilkan teks soal & diagram rantai makanan
+      dom.questionPrompt.textContent = `${state.currentIndex + 1}. ${q.prompt}`;
+      dom.questionDiagram.innerHTML = q.diagramHTML;
+
+      // Sembunyikan kotak pembahasan & tombol lanjut
+      dom.feedbackPanel.classList.remove('visible');
+      dom.nextBtn.style.display = 'none';
+
+      // Acak urutan 4 pilihan jawaban
+      const shuffledOptions = shuffleArray(q.options);
+      const letters = ['A', 'B', 'C', 'D'];
+
+      dom.optionsGrid.innerHTML = '';
+      shuffledOptions.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'option-btn';
+        btn.dataset.correct = opt.isCorrect ? '1' : '0';
+        btn.innerHTML = `
+          <span class="option-key">${letters[idx]}</span>
+          <span class="option-text">${opt.text}</span>
+        `;
+        btn.addEventListener('click', () => handleAnswerSelect(btn, opt, q));
+        dom.optionsGrid.appendChild(btn);
+      });
+    }
+
+    function handleAnswerSelect(selectedBtn, selectedOpt, questionObj) {
+      if (state.answered) return;
+      state.answered = true;
+
+      const isCorrect = selectedOpt.isCorrect;
+      const allBtns = Array.from(dom.optionsGrid.querySelectorAll('.option-btn'));
+
+      allBtns.forEach(btn => {
+        btn.disabled = true;
+        const btnIsCorrect = btn.dataset.correct === '1';
+        if (btnIsCorrect) {
+          btn.classList.add('correct');
+        } else if (btn === selectedBtn && !isCorrect) {
+          btn.classList.add('wrong');
+        } else {
+          btn.classList.add('dimmed');
+        }
+      });
+
+      if (isCorrect) {
+        state.score += 1;
+        state.points = state.score * 100;
+        state.streak += 1;
+        if (state.streak > state.maxStreak) state.maxStreak = state.streak;
+
+        sfx.correct();
+        triggerArenaAnimation(true);
+        dom.creatureHpFill.style.width = '0%';
+
+        const streakNote = state.streak >= 2 ? ` (${state.streak}x KOMBO!)` : '';
+        dom.battleToast.textContent = `HEBAT! +100 POIN${streakNote}`;
+        dom.battleToast.style.color = "var(--grass-dark)";
+        dom.feedbackHeader.className = "feedback-header win";
+        dom.feedbackHeader.textContent = "★ JAWABAN BENAR! EKOSISTEM TERJAGA!";
+      } else {
+        state.streak = 0;
+        state.heroHp = Math.max(15, state.heroHp - 15);
+        sfx.wrong();
+        triggerArenaAnimation(false);
+
+        dom.battleToast.textContent = "KURANG TEPAT! AYO BACA PENJELASAN";
+        dom.battleToast.style.color = "var(--accent-red-dark)";
+        dom.feedbackHeader.className = "feedback-header lose";
+        dom.feedbackHeader.textContent = "✖ KURANG TEPAT! YUK PELAJARI PENJELASANNYA:";
+      }
+
+      updateHud();
+
+      const correctOptionObj = questionObj.options.find(o => o.isCorrect);
+      state.history.push({
+        number: questionObj.id,
+        topic: questionObj.topic,
+        prompt: questionObj.prompt,
+        selectedHTML: selectedOpt.text,
+        correctHTML: correctOptionObj ? correctOptionObj.text : '',
+        isCorrect: isCorrect,
+        explanation: questionObj.explanation
+      });
+
+      // Tampilkan penjelasan ramah anak
+      dom.feedbackBody.textContent = questionObj.explanation;
+      dom.feedbackPanel.classList.add('visible');
+
+      const isLast = state.currentIndex === QUESTIONS.length - 1;
+      dom.nextBtnLabel.textContent = isLast ? "LIHAT HASIL ★" : "LANJUT ▶";
+      dom.nextBtn.style.display = 'inline-flex';
+    }
+
+    function handleNextStep() {
+      sfx.blip();
+      if (state.currentIndex < QUESTIONS.length - 1) {
+        state.currentIndex += 1;
+        renderQuestion();
+      } else {
+        renderResultsScreen();
+      }
+    }
+
+    function getRankDetails(score) {
+      if (score === 10) {
+        return {
+          rank: "GELAR: PAHLAWAN EKOSISTEM SAWAH",
+          shortRank: "PAHLAWAN SAWAH",
+          flavor: "Sempurna! Kamu berhasil menjawab semua soal rantai makanan di sawah dengan tepat."
+        };
+      } else if (score >= 8) {
+        return {
+          rank: "GELAR: PENJAGA PADI TELADAN",
+          shortRank: "PENJAGA PADI",
+          flavor: "Hebat sekali! Pengetahuanmu tentang produsen, konsumen, dan pengurai sangat baik."
+        };
+      } else if (score >= 5) {
+        return {
+          rank: "GELAR: SAHABAT ALAM SAWAH",
+          shortRank: "SAHABAT ALAM",
+          flavor: "Bagus! Baca kembali catatan belajar di bawah ini agar skormu semakin tinggi."
+        };
+      } else {
+        return {
+          rank: "GELAR: PETUALANG SAWAH PEMULA",
+          shortRank: "PEMULA SAWAH",
+          flavor: "Jangan menyerah! Yuk pelajari kembali pembahasan di bawah dan coba main lagi."
+        };
+      }
+    }
+
+    function renderResultsScreen() {
+      sfx.victory();
+      showScreen(dom.resultsScreen);
+      updateCreditUI();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      const total = QUESTIONS.length;
+      const rankInfo = getRankDetails(state.score);
+
+      dom.rankBadge.textContent = rankInfo.rank;
+      dom.finalScoreText.textContent = `${state.points} POIN (${state.score}/${total} Benar)`;
+      dom.finalFlavorText.textContent = rankInfo.flavor;
+      dom.finalXp.textContent = `${state.points} POIN`;
+      dom.finalMaxStreak.textContent = `${state.maxStreak}x`;
+      dom.finalAccuracy.textContent = `${state.score} / ${total}`;
+
+      // Simpan otomatis ke Papan Juara Sawah jika masuk Top 5
+      const currentScores = loadHighScores();
+      const currentBest = currentScores.length > 0 ? currentScores[0].score : 0;
+
+      if (qualifiesForTop5(state.points)) {
+        const runId = `run-${Date.now()}`;
+        state.savedRunId = runId;
+
+        currentScores.push({
+          id: runId,
+          name: state.playerName,
+          score: state.points,
+          accuracy: `${state.score}/10`,
+          rank: rankInfo.shortRank,
+          date: formatShortDate()
+        });
+        saveHighScoresList(currentScores);
+
+        dom.newRecordBox.style.display = 'block';
+        dom.newRecordTitle.textContent = state.points > currentBest
+          ? '★ REKOR BARU JUARA #1 SAWAH! ★'
+          : '★ BARU! SKORMU MASUK PAPAN JUARA SAWAH! ★';
+        dom.recordedNameDisplay.textContent = state.playerName;
+        dom.playerInitialsInput.value = state.playerName;
+      } else {
+        dom.newRecordBox.style.display = 'none';
+      }
+
+      renderHighScoreTable(dom.endHighScoreBody, dom.endPersonalBest, state.savedRunId);
+      renderHighScoreTable(dom.startHighScoreBody, dom.startPersonalBest, state.savedRunId);
+
+      // Tampilkan ringkasan pembahasan 10 soal
+      dom.reviewList.innerHTML = '';
+      state.history.forEach(item => {
+        const div = document.createElement('div');
+        div.className = `review-item ${item.isCorrect ? '' : 'missed'}`;
+        div.innerHTML = `
+          <div class="review-item-top">
+            <span>SOAL ${item.number} • ${item.topic}</span>
+            <span class="review-status-tag ${item.isCorrect ? 'ok' : 'no'}">
+              ${item.isCorrect ? '✓ BENAR' : '✗ KURANG TEPAT'}
+            </span>
+          </div>
+          <div class="review-q-text">${item.prompt}</div>
+          <div class="review-ans-detail">
+            ${item.isCorrect
+              ? `Jawabanmu: ${item.correctHTML}`
+              : `Jawabanmu: ${item.selectedHTML} &nbsp;|&nbsp; Jawaban Benar: ${item.correctHTML}`
+            }
+          </div>
+        `;
+        dom.reviewList.appendChild(div);
+      });
+    }
+
+    function handleSaveHighScore(e) {
+      e.preventDefault();
+      if (!state.savedRunId) return;
+
+      const updatedName = sanitizePlayerName(dom.playerInitialsInput.value);
+      state.playerName = updatedName;
+      persistPlayerName(updatedName);
+      dom.startPlayerNameInput.value = updatedName;
+      syncPlayerNameFromInput();
+
+      const scores = loadHighScores();
+      const entry = scores.find(item => item.id === state.savedRunId);
+      if (entry) {
+        entry.name = updatedName;
+        saveHighScoresList(scores);
+      }
+
+      sfx.correct();
+      dom.recordedNameDisplay.textContent = updatedName;
+      renderHighScoreTable(dom.endHighScoreBody, dom.endPersonalBest, state.savedRunId);
+      renderHighScoreTable(dom.startHighScoreBody, dom.startPersonalBest, state.savedRunId);
+    }
+
+    function renderResetControls(confirming = false) {
+      if (!dom.resetControlsWrap) return;
+      if (!confirming) {
+        dom.resetControlsWrap.innerHTML = `
+          <button id="resetScoresBtn" class="pixel-btn-mini danger" type="button">HAPUS SKOR</button>
+        `;
+        document.getElementById('resetScoresBtn').addEventListener('click', () => {
+          sfx.blip();
+          renderResetControls(true);
+        });
+      } else {
+        dom.resetControlsWrap.innerHTML = `
+          <div class="reset-confirm-bar">
+            <span>RESET?</span>
+            <button id="confirmResetYes" class="pixel-btn-mini danger" type="button">YA</button>
+            <button id="confirmResetNo" class="pixel-btn-mini" style="min-height:36px;padding:6px 8px;font-size:0.5rem;" type="button">BATAL</button>
+          </div>
+        `;
+        document.getElementById('confirmResetYes').addEventListener('click', () => {
+          resetHighScoresToDefault();
+          sfx.wrong();
+          renderHighScoreTable(dom.startHighScoreBody, dom.startPersonalBest);
+          renderResetControls(false);
+        });
+        document.getElementById('confirmResetNo').addEventListener('click', () => {
+          sfx.blip();
+          renderResetControls(false);
+        });
+      }
+    }
+
+    /* ========================================================================
+       8. INISIALISASI & EVENT LISTENERS
+       ======================================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedName = loadSavedPlayerName();
+      if (savedName) {
+        dom.startPlayerNameInput.value = savedName;
+      }
+      syncPlayerNameFromInput();
+      updateCreditUI();
+
+      // Gambar sprite awal di layar mulai
+      drawSprite(dom.previewHeroCanvas, 'hero');
+      drawSprite(dom.previewCreatureCanvas, 'elang');
+
+      // Tampilkan Papan Juara Sawah awal
+      renderHighScoreTable(dom.startHighScoreBody, dom.startPersonalBest);
+      renderResetControls(false);
+
+      // Perbarui nama petualang secara langsung saat diketik
+      dom.startPlayerNameInput.addEventListener('input', syncPlayerNameFromInput);
+
+      // Tombol Masukkan Koin & Lubang Koin (Layar Mulai & Layar Akhir)
+      dom.insertCoinBtn.addEventListener('click', () => insertCoin(true));
+      dom.coinSlitPlate.addEventListener('click', () => insertCoin(true));
+      dom.endInsertCoinBtn.addEventListener('click', () => insertCoin(false));
+
+      // Pintasan keyboard: tekan tombol 'C' untuk memasukkan koin
+      window.addEventListener('keydown', (e) => {
+        if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+        if (e.key === 'c' || e.key === 'C') {
+          insertCoin(dom.startScreen.classList.contains('active'));
+        }
+      });
+
+      // Tombol CRT Retro (Default OFF agar cerah bagi anak-anak)
+      let crtEnabled = false;
+      dom.crtToggleBtn.addEventListener('click', () => {
+        crtEnabled = !crtEnabled;
+        dom.crtOverlay.classList.toggle('hidden', !crtEnabled);
+        dom.crtToggleBtn.textContent = `CRT: ${crtEnabled ? 'ON' : 'OFF'}`;
+        sfx.blip();
+      });
+
+      // Tombol Efek Suara 8-Bit
+      dom.soundToggleBtn.addEventListener('click', () => {
+        sfx.muted = !sfx.muted;
+        dom.soundToggleBtn.textContent = `SFX: ${sfx.muted ? 'OFF' : 'ON'}`;
+        if (!sfx.muted) sfx.blip();
+      });
+
+      // Simpan perubahan nama pada Papan Juara
+      dom.saveScoreForm.addEventListener('submit', handleSaveHighScore);
+
+      // Tombol Navigasi Permainan
+      dom.startBtn.addEventListener('click', startNewQuest);
+      dom.nextBtn.addEventListener('click', handleNextStep);
+      dom.playAgainBtn.addEventListener('click', startNewQuest);
+    });
+  </script>
+</body>
+</html>
